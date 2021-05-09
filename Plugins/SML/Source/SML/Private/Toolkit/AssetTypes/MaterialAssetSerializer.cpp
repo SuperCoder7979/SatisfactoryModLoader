@@ -6,9 +6,9 @@
 
 void UMaterialAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UMaterial)
-    //TODO we do not serialize shaders yet, but information exposed by normal object serialization should be enough for reasonable stubs
-    //obviously they will be unable to show material in editor, but they can be used to reference it and even create new instances on top of it
-    SERIALIZE_ASSET_OBJECT
+        // TODO we do not serialize shaders yet, but information exposed by normal object serialization should be enough for reasonable stubs
+        // obviously they will be unable to show material in editor, but they can be used to reference it and even create new instances on top of it
+        SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION
 }
 
@@ -16,13 +16,13 @@ FName UMaterialAssetSerializer::GetAssetClass() const {
     return UMaterial::StaticClass()->GetFName();
 }
 
-//TODO uncomment once we port Material shader serialization to UE4.25
+// TODO uncomment once we port Material shader serialization to UE4.25
 /*static bool GHasShaderInitBeenHooked = false;
 
 void UMaterialAssetSerializer::RegisterShaderInitRHIHook() {
     GHasShaderInitBeenHooked = true;
     SUBSCRIBE_METHOD(FShaderMapResource::InitRHI, [](auto& Call, FShaderMapResourceCode* ShaderResource) {
-        //Prevent InitRHI from emptying shader bytecode array because we still need it for dumping
+        // Prevent InitRHI from emptying shader bytecode array because we still need it for dumping
         const TArray<uint8> CopiedByteCodeArray = ShaderResource->Code;
         check(CopiedByteCodeArray.Num());
         Call(ShaderResource);
@@ -37,7 +37,7 @@ void UMaterialAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> 
     UMaterial* Material;
     check(RootObjects.FindItemByClass<UMaterial>(&Material));
 
-    //Collect material resources
+    // Collect material resources
     TSet<FMaterialResource*> MaterialResources;
     for (int32 FeatureLevel = 0; FeatureLevel < ERHIFeatureLevel::Num; FeatureLevel++) {
         for (int32 QualityLevel = 0; QualityLevel < EMaterialQualityLevel::Num; QualityLevel++) {
@@ -49,12 +49,12 @@ void UMaterialAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> 
     }
     check(MaterialResources.Num() > 0);
 
-    //Serialize normal material properties
+    // Serialize normal material properties
     ObjectHierarchySerializer->SetObjectMark(Material, TEXT("RootMaterialObject"));
     const TSharedPtr<FJsonObject> MaterialProperties = ObjectHierarchySerializer->SerializeObjectProperties(Material);
     OutObject->SetObjectField(TEXT("MaterialProperties"), MaterialProperties);
-    
-    //Dump material resources general information into json and shader bytecode into binary files
+
+    // Dump material resources general information into json and shader bytecode into binary files
     TArray<TSharedPtr<FJsonValue>> MaterialResourcesArray;
     for (FMaterialResource* MaterialResource : MaterialResources) {
         const TSharedPtr<FJsonObject> ResourceObject = MakeShareable(new FJsonObject());
@@ -67,7 +67,7 @@ void UMaterialAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> 
 void UMaterialAssetSerializer::UncompressShaderCode(const FShaderResource& ShaderResource, TArray<uint8>& UncompressedCode) {
     checkf(GHasShaderInitBeenHooked, TEXT("Cannot dump shader bytecode outside of the development mode (due to performance reasons)"));
     check(ShaderResource.Code.Num());
-    
+
     const FName ShaderCompressionFormat = NAME_Zlib;
     if (ShaderResource.Code.Num() != ShaderResource.UncompressedCodeSize) {
         UncompressedCode.SetNum(ShaderResource.UncompressedCodeSize);
@@ -83,31 +83,31 @@ void UMaterialAssetSerializer::UncompressShaderCode(const FShaderResource& Shade
 }
 
 void UMaterialAssetSerializer::SerializeShader(FShader* Shader, TSharedPtr<FJsonObject> OutJson, FAssetSerializationContext& AssetSerializationContext, const FString& ShaderNamePrefix) {
-    //Skip OutputHash - stripped during cooking
-    //Skip MaterialShaderMapHash - stripped during cooking
-    //Skip VFSourceHash - stripped during cooking
-    //Skip SourceHash - stripped during cooking
-    //Skip ShaderPipeline - already serialized in SerializeShaderMap
-    //Skip VFType - serialized in SerializeMaterialResource
-    //Skip serializing platform because it is already serialized
-    
-    //Serialize basic information
+    // Skip OutputHash - stripped during cooking
+    // Skip MaterialShaderMapHash - stripped during cooking
+    // Skip VFSourceHash - stripped during cooking
+    // Skip SourceHash - stripped during cooking
+    // Skip ShaderPipeline - already serialized in SerializeShaderMap
+    // Skip VFType - serialized in SerializeMaterialResource
+    // Skip serializing platform because it is already serialized
+
+    // Serialize basic information
     const FString FrequencyString = ShaderFrequencyToString(Shader->Target.GetFrequency());
     const FString ShaderType = Shader->Type->GetName();
-    
+
     OutJson->SetStringField(TEXT("ShaderType"), ShaderType);
     OutJson->SetNumberField(TEXT("PermutationId"), Shader->PermutationId);
     OutJson->SetStringField(TEXT("ShaderFrequency"), FrequencyString);
     OutJson->SetNumberField(TEXT("NumInstructions"), Shader->GetNumInstructions());
 
-    //Serialize uniform buffer parameters
-    //Uniform parameters describe offset of each buffer inside of the shader and
-    //it's internal structure used by shader
+    // Serialize uniform buffer parameters
+    // Uniform parameters describe offset of each buffer inside of the shader and
+    // it's internal structure used by shader
     TArray<TSharedPtr<FJsonValue>> UniformBufferParameters;
     for (int32 i = 0; i < Shader->UniformBufferParameters.Num(); i++) {
         const TCHAR* StructTypeName = Shader->UniformBufferParameterStructs[i]->GetStructTypeName();
         FShaderUniformBufferParameter* Parameter = Shader->UniformBufferParameters[i];
-        
+
         TSharedPtr<FJsonObject> UniformBufferParameter = MakeShareable(new FJsonObject());
         UniformBufferParameter->SetStringField(TEXT("StructTypeName"), StructTypeName);
         UniformBufferParameter->SetNumberField(TEXT("BaseIndex"), Parameter->GetBaseIndex());
@@ -116,21 +116,21 @@ void UMaterialAssetSerializer::SerializeShader(FShader* Shader, TSharedPtr<FJson
     }
     OutJson->SetArrayField(TEXT("UniformBufferParameters"), UniformBufferParameters);
 
-    //Serialize bindings
-    //Bindings link parameters struct members (by offset) to shader parameters (by base index and buffer index)
-    //Relevant method to see how it is done: SetShaderParameters
-    //Apparently it is only populated through BindForLegacyShaderParameters method call,
-    //which is performed only for global shaders using SHADER_USE_PARAMETER_STRUCT macro
-    //with predefined struct layout. So yeah, it should be empty for non-global shaders at all times
-    //adn to get C++ type of struct in question, you should look at shader type in question
+    // Serialize bindings
+    // Bindings link parameters struct members (by offset) to shader parameters (by base index and buffer index)
+    // Relevant method to see how it is done: SetShaderParameters
+    // Apparently it is only populated through BindForLegacyShaderParameters method call,
+    // which is performed only for global shaders using SHADER_USE_PARAMETER_STRUCT macro
+    // with predefined struct layout. So yeah, it should be empty for non-global shaders at all times
+    // adn to get C++ type of struct in question, you should look at shader type in question
     OutJson->SetObjectField(TEXT("Bindings"), SerializeParameterBindings(&Shader->Bindings));
 
-    //Serialize shader parameter map info
-    //Parameter map info contains indices of each parameter and describes layout of shader bindings in memory
-    //Layout of fields in parameter map strictly follows layout of parameters inside of the shader RHI resource
+    // Serialize shader parameter map info
+    // Parameter map info contains indices of each parameter and describes layout of shader bindings in memory
+    // Layout of fields in parameter map strictly follows layout of parameters inside of the shader RHI resource
     OutJson->SetObjectField(TEXT("ParameterMapInfo"), SerializeShaderParameterMapInfo(&Shader->GetParameterMapInfo()));
-    
-    //Serialize bytecode into separate file
+
+    // Serialize bytecode into separate file
     TArray<uint8> ShaderBytecode;
     UncompressShaderCode(*Shader->Resource, ShaderBytecode);
 
@@ -214,7 +214,7 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeParameterBindings(FSh
         ParameterReferences.Add(MakeShareable(new FJsonValueObject(ParameterObject)));
     }
     JsonObject->SetArrayField(TEXT("ParameterReferences"), ParameterReferences);
-    
+
     JsonObject->SetNumberField(TEXT("RootParameterBufferIndex"), ParameterBindings->RootParameterBufferIndex);
     return JsonObject;
 }
@@ -248,7 +248,7 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeShaderParameterMapInf
         SRVs.Add(MakeShareable(new FJsonValueObject(ParameterObject)));
     }
     JsonObject->SetArrayField(TEXT("SRVs"), SRVs);
-    
+
     TArray<TSharedPtr<FJsonValue>> LooseParameterBuffers;
     for (const FShaderLooseParameterBufferInfo& Parameter : ParameterMapInfo->LooseParameterBuffers) {
         TSharedPtr<FJsonObject> ParameterObject = MakeShareable(new FJsonObject());
@@ -271,7 +271,7 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeShaderParameterMapInf
 
 template<typename TShaderType>
 void SerializeShaderMap(TShaderMap<TShaderType>* ShaderMap, TSharedPtr<FJsonObject> OutJson, FAssetSerializationContext& Context, const FString& ShaderNamePrefix) {
-    //Serialize shader platform before serializing any shaders
+    // Serialize shader platform before serializing any shaders
     const FString ShaderPlatform = UMaterialAssetSerializer::ShaderPlatformToString(ShaderMap->GetShaderPlatform());
     OutJson->SetStringField(TEXT("ShaderPlatform"), ShaderPlatform);
     const FString ShaderNamePrefixWithPlatform = FString::Printf(TEXT("%s_%s"), *ShaderNamePrefix, *ShaderPlatform);
@@ -282,10 +282,10 @@ void SerializeShaderMap(TShaderMap<TShaderType>* ShaderMap, TSharedPtr<FJsonObje
         const TSharedPtr<FJsonObject> OutObject = MakeShareable(new FJsonObject());
         const FString IndependentShaderName = FString::Printf(TEXT("%s_root"), *ShaderNamePrefixWithPlatform);
         UMaterialAssetSerializer::SerializeShader(Pair.Value, OutObject, Context, ShaderNamePrefix);
-        
+
         Shaders.Add(MakeShareable(new FJsonValueObject(OutObject)));
     }
-    
+
     OutJson->SetArrayField(TEXT("Shaders"), Shaders);
 
     TArray<FShaderPipeline*> OutShaderPipelines;
@@ -298,17 +298,17 @@ void SerializeShaderMap(TShaderMap<TShaderType>* ShaderMap, TSharedPtr<FJsonObje
         OutObject->SetStringField(TEXT("PipelineType"), PipelineTypeName);
         TArray<TSharedPtr<FJsonValue>> PipelineShaders;
         for (FShader* PipelineShader : ShaderPipeline->GetShaders()) {
-            
+
             const TSharedPtr<FJsonObject> ShaderObject = MakeShareable(new FJsonObject());
             const FString PipelineShaderName = FString::Printf(TEXT("%s_%s"), *ShaderNamePrefixWithPlatform, *PipelineTypeName);
             UMaterialAssetSerializer::SerializeShader(PipelineShader, ShaderObject, Context, PipelineShaderName);
-            
+
             PipelineShaders.Add(MakeShareable(new FJsonValueObject(ShaderObject)));
         }
         OutObject->SetArrayField(TEXT("PipelineShaders"), PipelineShaders);
         ShaderPipelines.Add(MakeShareable(new FJsonValueObject(OutObject)));
     }
-    
+
     OutJson->SetArrayField(TEXT("ShaderPipelines"), ShaderPipelines);
 }
 
@@ -334,8 +334,8 @@ void UMaterialAssetSerializer::SerializeMaterialResource(FMaterialResource* Mate
 
     const FString QualityLevelString = QualityLevelToString(MaterialResource->GetQualityLevel());
     const FString FeatureLevelString = FeatureLevelToString(MaterialResource->GetFeatureLevel());
-    
-    //Serialize basic attributes of material resource
+
+    // Serialize basic attributes of material resource
     OutObject->SetStringField(TEXT("QualityLevel"), QualityLevelString);
     OutObject->SetStringField(TEXT("FeatureLevel"), FeatureLevelString);
 
@@ -343,19 +343,19 @@ void UMaterialAssetSerializer::SerializeMaterialResource(FMaterialResource* Mate
     check(ShaderMap);
     const FMaterialShaderMapId& MaterialShaderMapId = ShaderMap->GetShaderMapId();
 
-    //Serialize material shader map identifier
+    // Serialize material shader map identifier
     OutObject->SetObjectField(TEXT("MaterialShaderMapId"), SerializeMaterialShaderMapId(MaterialShaderMapId, PropertySerializer));
-    
-    //Serialize MaterialCompilationOutput fields
+
+    // Serialize MaterialCompilationOutput fields
     const TSharedPtr<FJsonObject> MaterialCompilationOutput = MakeShareable(new FJsonObject());
     SerializeMaterialCompilationOutput(ShaderMap, MaterialCompilationOutput);
     OutObject->SetObjectField(TEXT("MaterialCompilationOutput"), MaterialCompilationOutput);
 
-    //Serialize actual shader map contents
+    // Serialize actual shader map contents
     const FString MainShadersPrefix = FString::Printf(TEXT("main_%s_%s"), *QualityLevelString, *FeatureLevelString);
     SerializeShaderMap<FMaterialShaderType>(ShaderMap, OutObject, Context, MainShadersPrefix);
 
-    //Serialize child mesh-dependent shader maps
+    // Serialize child mesh-dependent shader maps
     TArray<TSharedPtr<FJsonValue>> MeshShaderMaps;
     for (FMeshMaterialShaderMap& MeshMaterialShaderMap : ShaderMap->MeshShaderMaps) {
         TSharedPtr<FJsonObject> MapObject = MakeShareable(new FJsonObject());
@@ -372,13 +372,13 @@ void UMaterialAssetSerializer::SerializeMaterialResource(FMaterialResource* Mate
 TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeMaterialShaderMapId(const FMaterialShaderMapId& MaterialShaderMapId, UPropertySerializer* PropertySerializer) {
     TSharedPtr<FJsonObject> OutObject = MakeShareable(new FJsonObject());
 
-    //Serialize MaterialShaderMap identifier with all child fields
+    // Serialize MaterialShaderMap identifier with all child fields
     OutObject->SetStringField(TEXT("BaseMaterialId"), MaterialShaderMapId.BaseMaterialId.ToString());
     OutObject->SetStringField(TEXT("Usage"), MaterialShaderMapUsageToString(MaterialShaderMapId.Usage));
     OutObject->SetObjectField(TEXT("ParameterSet"), PropertySerializer->SerializeStruct(FStaticParameterSet::StaticStruct(), &MaterialShaderMapId.GetParameterSet()));
     OutObject->SetStringField(TEXT("ParameterSetLayerParametersKey"), MaterialShaderMapId.GetParameterSetLayerParametersKey());
 
-    //Serialize list of referenced functions and parameters collections
+    // Serialize list of referenced functions and parameters collections
     TArray<TSharedPtr<FJsonValue>> ReferencedFunctions;
     for (const FGuid& FunctionStateId : MaterialShaderMapId.ReferencedFunctions) {
         ReferencedFunctions.Add(MakeShareable(new FJsonValueString(FunctionStateId.ToString())));
@@ -391,13 +391,13 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeMaterialShaderMapId(c
     }
     OutObject->SetArrayField(TEXT("ReferencedParameterCollections"), ReferencedParameterCollections);
 
-    //Serialize dependencies on other shaders
+    // Serialize dependencies on other shaders
     TArray<TSharedPtr<FJsonValue>> ShaderTypeDependencies;
     for (const FShaderTypeDependency& Dependency : MaterialShaderMapId.ShaderTypeDependencies) {
         TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
         JsonObject->SetStringField(TEXT("ShaderType"), Dependency.ShaderType->GetName());
         JsonObject->SetNumberField(TEXT("PermutationId"), Dependency.PermutationId);
-        //Skip SourceHash because it will be empty in shipping binaries
+        // Skip SourceHash because it will be empty in shipping binaries
         ShaderTypeDependencies.Add(MakeShareable(new FJsonValueObject(JsonObject)));
     }
     OutObject->SetArrayField(TEXT("ShaderTypeDependencies"), ShaderTypeDependencies);
@@ -420,7 +420,7 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeMaterialShaderMapId(c
 
 void UMaterialAssetSerializer::SerializeMaterialCompilationOutput(FMaterialShaderMap* ShaderMap, TSharedPtr<FJsonObject> MaterialCompilationOutput) {
 
-    //Serialize normal compiler output properties
+    // Serialize normal compiler output properties
     MaterialCompilationOutput->SetBoolField(TEXT("RequiresSceneColorCopy"), ShaderMap->RequiresSceneColorCopy());
     MaterialCompilationOutput->SetBoolField(TEXT("NeedsSceneTextures"), ShaderMap->NeedsSceneTextures());
     MaterialCompilationOutput->SetBoolField(TEXT("UsesGlobalDistanceField"), ShaderMap->UsesGlobalDistanceField());
@@ -444,7 +444,7 @@ void UMaterialAssetSerializer::SerializeMaterialCompilationOutput(FMaterialShade
 
     const FUniformExpressionSet& UniformExpressionSet = ShaderMap->GetUniformExpressionSet();
 
-    //Serialize uniforms
+    // Serialize uniforms
     TArray<TSharedPtr<FJsonValue>> UniformVectorExpressions;
     for (const TRefCountPtr<FMaterialUniformExpression>& Expression : UniformExpressionSet.UniformVectorExpressions) {
         const TSharedPtr<FJsonObject> ExpressionObject = SerializeUniformExpression(Expression);
@@ -472,7 +472,7 @@ void UMaterialAssetSerializer::SerializeMaterialCompilationOutput(FMaterialShade
         UniformTextureCubeExpressions.Add(MakeShareable(new FJsonValueObject(ExpressionObject)));
     }
     MaterialCompilationOutput->SetArrayField(TEXT("UniformTextureCubeExpressions"), UniformTextureCubeExpressions);
-    
+
     TArray<TSharedPtr<FJsonValue>> UniformTextureVolumeExpressions;
     for (const TRefCountPtr<FMaterialUniformExpressionTexture>& Expression : UniformExpressionSet.UniformVolumeTextureExpressions) {
         const TSharedPtr<FJsonObject> ExpressionObject = SerializeUniformExpression(Expression);
@@ -487,7 +487,7 @@ void UMaterialAssetSerializer::SerializeMaterialCompilationOutput(FMaterialShade
     }
     MaterialCompilationOutput->SetArrayField(TEXT("UniformExternalTextureExpressions"), UniformExternalTextureExpressions);
 
-    //Serialize StateIds of used parameter collections
+    // Serialize StateIds of used parameter collections
     TArray<TSharedPtr<FJsonValue>> ParameterCollections;
     for (const FGuid& ParameterCollectionGuid : UniformExpressionSet.ParameterCollections) {
         ParameterCollections.Add(MakeShareable(new FJsonValueString(ParameterCollectionGuid.ToString())));
@@ -529,64 +529,64 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeUniformExpression(FMa
     const FString ExpressionType = Expression->GetType()->GetName();
     OutObject->SetStringField(TEXT("ExpressionType"), ExpressionType);
 
-    //BEGIN PARAMETERS AND CONSTANTS
+    // BEGIN PARAMETERS AND CONSTANTS
     if (ExpressionType == TEXT("FMaterialUniformExpressionTexture")) {
         SerializeCommonTextureExpression(Expression, OutObject);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionConstant")) {
         FMaterialUniformExpressionConstant* Constant = static_cast<FMaterialUniformExpressionConstant*>(Expression);
         SerializeMaterialValue(Constant->ValueType, Constant->Value, OutObject);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionVectorParameter")) {
         FMaterialUniformExpressionVectorParameter* VectorParameter = static_cast<FMaterialUniformExpressionVectorParameter*>(Expression);
         OutObject->SetObjectField(TEXT("ParameterInfo"), SerializeParameterInfo(VectorParameter->ParameterInfo));
         OutObject->SetObjectField(TEXT("DefaultValue"), SerializeLinearColor(VectorParameter->DefaultValue));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionScalarParameter")) {
         FMaterialUniformExpressionScalarParameter* ScalarParameter = static_cast<FMaterialUniformExpressionScalarParameter*>(Expression);
         OutObject->SetObjectField(TEXT("ParameterInfo"), SerializeParameterInfo(ScalarParameter->ParameterInfo));
         OutObject->SetNumberField(TEXT("DefaultValue"), ScalarParameter->DefaultValue);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionTextureParameter")) {
         FMaterialUniformExpressionTextureParameter* TextureParameter = static_cast<FMaterialUniformExpressionTextureParameter*>(Expression);
         SerializeCommonTextureExpression(TextureParameter, OutObject);
         OutObject->SetObjectField(TEXT("ParameterInfo"), SerializeParameterInfo(TextureParameter->ParameterInfo));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionExternalTextureBase")) {
         SerializeCommonExternalTextureBaseExpression(Expression, OutObject);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionExternalTexture")) {
         FMaterialUniformExpressionExternalTexture* ExternalTexture = static_cast<FMaterialUniformExpressionExternalTexture*>(Expression);
         SerializeCommonExternalTextureBaseExpression(ExternalTexture, OutObject);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionExternalTextureParameter")) {
         FMaterialUniformExpressionExternalTextureParameter* TextureParameter = static_cast<FMaterialUniformExpressionExternalTextureParameter*>(Expression);
         SerializeCommonExternalTextureBaseExpression(TextureParameter, OutObject);
         OutObject->SetStringField(TEXT("ParameterName"), TextureParameter->ParameterName.ToString());
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionExternalTextureCoordinateScaleRotation")) {
         FMaterialUniformExpressionExternalTextureCoordinateScaleRotation* TextureCoordinateScaleRotation = static_cast<FMaterialUniformExpressionExternalTextureCoordinateScaleRotation*>(Expression);
         SerializeCommonExternalTextureBaseExpression(TextureCoordinateScaleRotation, OutObject);
         OutObject->SetBoolField(TEXT("HasParameterName"), TextureCoordinateScaleRotation->ParameterName.IsSet());
         OutObject->SetStringField(TEXT("ParameterName"), TextureCoordinateScaleRotation->ParameterName.Get(TEXT("<not specified>")).ToString());
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionExternalTextureCoordinateOffset")) {
         FMaterialUniformExpressionExternalTextureCoordinateOffset* TextureCoordinateOffset = static_cast<FMaterialUniformExpressionExternalTextureCoordinateOffset*>(Expression);
         SerializeCommonExternalTextureBaseExpression(TextureCoordinateOffset, OutObject);
         OutObject->SetBoolField(TEXT("HasParameterName"), TextureCoordinateOffset->ParameterName.IsSet());
         OutObject->SetStringField(TEXT("ParameterName"), TextureCoordinateOffset->ParameterName.Get(TEXT("<not specified>")).ToString());
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionFlipBookTextureParameter")) {
         FMaterialUniformExpressionFlipBookTextureParameter* FlipBookTextureParameter = static_cast<FMaterialUniformExpressionFlipBookTextureParameter*>(Expression);
         SerializeCommonTextureExpression(FlipBookTextureParameter, OutObject);
-        
+
     }
-    //BEGIN STANDARD MATH FUNCTIONS
+    // BEGIN STANDARD MATH FUNCTIONS
     else if (ExpressionType == TEXT("FMaterialUniformExpressionSine")) {
         FMaterialUniformExpressionSine* Sine = static_cast<FMaterialUniformExpressionSine*>(Expression);
         OutObject->SetBoolField(TEXT("bIsCosine"), Sine->bIsCosine);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Sine->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionSquareRoot")) {
         FMaterialUniformExpressionSquareRoot* SquareRoot = static_cast<FMaterialUniformExpressionSquareRoot*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(SquareRoot->X));
@@ -599,48 +599,48 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeUniformExpression(FMa
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionLogarithm2")) {
         FMaterialUniformExpressionLogarithm2* Logarithm2 = static_cast<FMaterialUniformExpressionLogarithm2*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Logarithm2->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionLogarithm10")) {
         FMaterialUniformExpressionLogarithm10* Logarithm10 = static_cast<FMaterialUniformExpressionLogarithm10*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Logarithm10->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionFoldedMath")) {
         FMaterialUniformExpressionFoldedMath* FoldedMath = static_cast<FMaterialUniformExpressionFoldedMath*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(FoldedMath->A));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(FoldedMath->B));
         OutObject->SetStringField(TEXT("ValueType"), MaterialValueTypeToString(FoldedMath->ValueType));
         OutObject->SetStringField(TEXT("Operation"), FoldedMathOperationToString(FoldedMath->Op));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionPeriodic")) {
         FMaterialUniformExpressionPeriodic* Periodic = static_cast<FMaterialUniformExpressionPeriodic*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Periodic->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionAppendVector")) {
         FMaterialUniformExpressionAppendVector* AppendVector = static_cast<FMaterialUniformExpressionAppendVector*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(AppendVector->A));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(AppendVector->B));
         OutObject->SetNumberField(TEXT("NumComponentsA"), AppendVector->NumComponentsA);
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionMin")) {
         FMaterialUniformExpressionMin* Min = static_cast<FMaterialUniformExpressionMin*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(Min->A));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(Min->B));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionMax")) {
         FMaterialUniformExpressionMax* Max = static_cast<FMaterialUniformExpressionMax*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(Max->A));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(Max->B));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionClamp")) {
         FMaterialUniformExpressionClamp* Clamp = static_cast<FMaterialUniformExpressionClamp*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionInput"), SerializeUniformExpression(Clamp->Input));
         OutObject->SetObjectField(TEXT("ExpressionMin"), SerializeUniformExpression(Clamp->Min));
         OutObject->SetObjectField(TEXT("ExpressionMax"), SerializeUniformExpression(Clamp->Max));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionSaturate")) {
         FMaterialUniformExpressionSaturate* Saturate = static_cast<FMaterialUniformExpressionSaturate*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionInput"), SerializeUniformExpression(Saturate->Input));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionComponentSwizzle")) {
         FMaterialUniformExpressionComponentSwizzle* ComponentSwizzle = static_cast<FMaterialUniformExpressionComponentSwizzle*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(ComponentSwizzle->X));
@@ -653,47 +653,47 @@ TSharedPtr<FJsonObject> UMaterialAssetSerializer::SerializeUniformExpression(FMa
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionFloor")) {
         FMaterialUniformExpressionFloor* Floor = static_cast<FMaterialUniformExpressionFloor*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Floor->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionCeil")) {
         FMaterialUniformExpressionCeil* Ceil = static_cast<FMaterialUniformExpressionCeil*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Ceil->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionFrac")) {
         FMaterialUniformExpressionFrac* Frac = static_cast<FMaterialUniformExpressionFrac*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Frac->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionFmod")) {
         FMaterialUniformExpressionFmod* Mod = static_cast<FMaterialUniformExpressionFmod*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(Mod->A));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(Mod->B));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionAbs")) {
         FMaterialUniformExpressionAbs* Abs = static_cast<FMaterialUniformExpressionAbs*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Abs->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionTextureProperty")) {
         FMaterialUniformExpressionTextureProperty* TextureProperty = static_cast<FMaterialUniformExpressionTextureProperty*>(Expression);
         OutObject->SetObjectField(TEXT("TextureExpression"), SerializeUniformExpression(TextureProperty->TextureExpression));
         OutObject->SetStringField(TEXT("TextureProperty"), MaterialExposedTexturePropertyToString(TextureProperty->TextureProperty));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionTrigMath")) {
         FMaterialUniformExpressionTrigMath* TrigMath = static_cast<FMaterialUniformExpressionTrigMath*>(Expression);
         OutObject->SetObjectField(TEXT("ExpressionA"), SerializeUniformExpression(TrigMath->X));
         OutObject->SetObjectField(TEXT("ExpressionB"), SerializeUniformExpression(TrigMath->Y));
         OutObject->SetStringField(TEXT("Operation"), TrigMathOperationToString(TrigMath->Op));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionRound")) {
         FMaterialUniformExpressionRound* Round = static_cast<FMaterialUniformExpressionRound*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Round->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionTruncate")) {
         FMaterialUniformExpressionTruncate* Truncate = static_cast<FMaterialUniformExpressionTruncate*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Truncate->X));
-        
+
     } else if (ExpressionType == TEXT("FMaterialUniformExpressionSign")) {
         FMaterialUniformExpressionSign* Sign = static_cast<FMaterialUniformExpressionSign*>(Expression);
         OutObject->SetObjectField(TEXT("Expression"), SerializeUniformExpression(Sign->X));
-        
+
     } else {
         checkf(0, TEXT("Unsupported uniform expression type: %s"), *ExpressionType);
     }
@@ -795,39 +795,39 @@ FString UMaterialAssetSerializer::ShaderFrequencyToString(uint8 ShaderFrequency)
 
 
 FString UMaterialAssetSerializer::ShaderPlatformToString(uint8 ShaderPlatform) {
-	switch (ShaderPlatform) {
-		case SP_PCD3D_SM5: return TEXT("PCD3D_SM5");
-		case SP_OPENGL_SM4: return TEXT("OPENGL_SM4");
-		case SP_PS4: return TEXT("OPENGL_SM4");
-		case SP_OPENGL_PCES2: return TEXT("OPENGL_PCES2");
-		case SP_XBOXONE_D3D12: return TEXT("XBOXONE_D3D12");
-		case SP_PCD3D_SM4: return TEXT("PCD3D_SM4");
-		case SP_OPENGL_SM5: return TEXT("OPENGL_SM5");
-		case SP_PCD3D_ES2: return TEXT("PCD3D_ES2");
-		case SP_OPENGL_ES2_ANDROID: return TEXT("OPENGL_ES2_ANDROID");
-		case SP_OPENGL_ES2_WEBGL: return TEXT("OPENGL_ES2_WEBGL");
-		case SP_OPENGL_ES2_IOS: return TEXT("OPENGL_ES2_IOS");
-		case SP_METAL: return TEXT("METAL");
-		case SP_METAL_MRT: return TEXT("METAL_MRT");
-		case SP_METAL_TVOS: return TEXT("METAL_TVOS");
-		case SP_METAL_MRT_TVOS: return TEXT("METAL_MRT_TVOS");
-		case SP_OPENGL_ES31_EXT: return TEXT("OPENGL_ES31_EXT");
-		case SP_PCD3D_ES3_1: return TEXT("PCD3D_ES3_1");
-		case SP_OPENGL_PCES3_1: return TEXT("OPENGL_PCES3_1");
-		case SP_METAL_SM5: return TEXT("METAL_SM5");
-		case SP_VULKAN_PCES3_1: return TEXT("VULKAN_PCES3_1");
-		case SP_METAL_SM5_NOTESS: return TEXT("METAL_SM5_NOTESS");
-		case SP_VULKAN_SM4: return TEXT("VULKAN_SM4");
-		case SP_VULKAN_SM5: return TEXT("VULKAN_SM5");
-		case SP_VULKAN_ES3_1_ANDROID: return TEXT("VULKAN_ES3_1_ANDROID");
-		case SP_METAL_MACES3_1: return TEXT("METAL_MACES3_1");
-		case SP_METAL_MACES2: return TEXT("METAL_MACES2");
-		case SP_OPENGL_ES3_1_ANDROID: return TEXT("OPENGL_ES3_1_ANDROID");
-		case SP_SWITCH: return TEXT("SWITCH");
-		case SP_SWITCH_FORWARD: return TEXT("SWITCH_FORWARD");
-		case SP_METAL_MRT_MAC: return TEXT("METAL_MRT_MAC");
-		default: checkf(0, TEXT("Unknown shader platform: %d"), ShaderPlatform); return TEXT("");
-	}
+    switch (ShaderPlatform) {
+        case SP_PCD3D_SM5: return TEXT("PCD3D_SM5");
+        case SP_OPENGL_SM4: return TEXT("OPENGL_SM4");
+        case SP_PS4: return TEXT("OPENGL_SM4");
+        case SP_OPENGL_PCES2: return TEXT("OPENGL_PCES2");
+        case SP_XBOXONE_D3D12: return TEXT("XBOXONE_D3D12");
+        case SP_PCD3D_SM4: return TEXT("PCD3D_SM4");
+        case SP_OPENGL_SM5: return TEXT("OPENGL_SM5");
+        case SP_PCD3D_ES2: return TEXT("PCD3D_ES2");
+        case SP_OPENGL_ES2_ANDROID: return TEXT("OPENGL_ES2_ANDROID");
+        case SP_OPENGL_ES2_WEBGL: return TEXT("OPENGL_ES2_WEBGL");
+        case SP_OPENGL_ES2_IOS: return TEXT("OPENGL_ES2_IOS");
+        case SP_METAL: return TEXT("METAL");
+        case SP_METAL_MRT: return TEXT("METAL_MRT");
+        case SP_METAL_TVOS: return TEXT("METAL_TVOS");
+        case SP_METAL_MRT_TVOS: return TEXT("METAL_MRT_TVOS");
+        case SP_OPENGL_ES31_EXT: return TEXT("OPENGL_ES31_EXT");
+        case SP_PCD3D_ES3_1: return TEXT("PCD3D_ES3_1");
+        case SP_OPENGL_PCES3_1: return TEXT("OPENGL_PCES3_1");
+        case SP_METAL_SM5: return TEXT("METAL_SM5");
+        case SP_VULKAN_PCES3_1: return TEXT("VULKAN_PCES3_1");
+        case SP_METAL_SM5_NOTESS: return TEXT("METAL_SM5_NOTESS");
+        case SP_VULKAN_SM4: return TEXT("VULKAN_SM4");
+        case SP_VULKAN_SM5: return TEXT("VULKAN_SM5");
+        case SP_VULKAN_ES3_1_ANDROID: return TEXT("VULKAN_ES3_1_ANDROID");
+        case SP_METAL_MACES3_1: return TEXT("METAL_MACES3_1");
+        case SP_METAL_MACES2: return TEXT("METAL_MACES2");
+        case SP_OPENGL_ES3_1_ANDROID: return TEXT("OPENGL_ES3_1_ANDROID");
+        case SP_SWITCH: return TEXT("SWITCH");
+        case SP_SWITCH_FORWARD: return TEXT("SWITCH_FORWARD");
+        case SP_METAL_MRT_MAC: return TEXT("METAL_MRT_MAC");
+        default: checkf(0, TEXT("Unknown shader platform: %d"), ShaderPlatform); return TEXT("");
+    }
 }
 
 

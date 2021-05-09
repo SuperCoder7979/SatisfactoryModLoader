@@ -9,7 +9,7 @@ public:
     virtual void SerializeAsset(TSharedRef<FSerializationContext> Context) const override;
 
     static TSharedPtr<class FJsonObject> SerializeBodySetup(class UBodySetup* BodySetup, class UObjectHierarchySerializer* ObjectHierarchySerializer);
-    
+
     virtual FName GetAssetClass() const override;
     virtual bool SupportsParallelDumping() const override;
 };

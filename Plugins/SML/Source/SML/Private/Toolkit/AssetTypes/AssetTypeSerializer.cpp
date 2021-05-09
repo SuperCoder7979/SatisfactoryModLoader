@@ -1,13 +1,13 @@
 #include "Toolkit/AssetDumping/AssetTypeSerializer.h"
 
-//Static class used to lazily populate serializer registry
+// Static class used to lazily populate serializer registry
 class FAssetTypeSerializerRegistry {
 public:
-    //Native classes should never get unloaded anyway, so we can use TWeakObjectPtr safely
+    // Native classes should never get unloaded anyway, so we can use TWeakObjectPtr safely
     TMap<FName, TWeakObjectPtr<UAssetTypeSerializer>> Serializers;
     TArray<TWeakObjectPtr<UAssetTypeSerializer>> SerializersArray;
 
-    //Constructor that will automatically populate registry serializers
+    // Constructor that will automatically populate registry serializers
     FAssetTypeSerializerRegistry();
 
     static const FAssetTypeSerializerRegistry& Get() {
@@ -35,26 +35,26 @@ FAssetTypeSerializerRegistry::FAssetTypeSerializerRegistry() {
     TArray<UClass*> AssetSerializerClasses;
     GetDerivedClasses(UAssetTypeSerializer::StaticClass(), AssetSerializerClasses, true);
 
-    //Iterate classes in memory to resolve serializers
+    // Iterate classes in memory to resolve serializers
     TArray<UAssetTypeSerializer*> OutFoundInitializers;
     for (UClass* Class : AssetSerializerClasses) {
-        //Skip classes that are marked as Abstract
+        // Skip classes that are marked as Abstract
         if (Class->HasAnyClassFlags(CLASS_Abstract)) {
             continue;
         }
-        //Skip classes that are not marked as Native
+        // Skip classes that are not marked as Native
         if (!Class->HasAnyClassFlags(CLASS_Native)) {
             continue;
         }
-            
-        //Check asset type in class default object
+
+        // Check asset type in class default object
         UAssetTypeSerializer* ClassDefaultObject = CastChecked<UAssetTypeSerializer>(Class->GetDefaultObject());
         if (ClassDefaultObject->GetAssetClass() != NAME_None) {
             OutFoundInitializers.Add(ClassDefaultObject);
         }
     }
 
-    //First register additional asset classes, so primary ones will overwrite them later
+    // First register additional asset classes, so primary ones will overwrite them later
     for (UAssetTypeSerializer* Serializer : OutFoundInitializers) {
         TArray<FName> OutExtraAssetClasses;
         Serializer->GetAdditionallyHandledAssetClasses(OutExtraAssetClasses);
@@ -63,7 +63,7 @@ FAssetTypeSerializerRegistry::FAssetTypeSerializerRegistry() {
         }
     }
 
-    //Now setup primary asset classes and add serializers into array
+    // Now setup primary asset classes and add serializers into array
     for (UAssetTypeSerializer* Serializer : OutFoundInitializers) {
         const FName AssetClass = Serializer->GetAssetClass();
         this->Serializers.Add(AssetClass, Serializer);

@@ -8,7 +8,7 @@ class SML_API FAssetHelper {
 public:
     /** Ensures that HasSerializedOverrideOnClass works correctly */
     static void RunStaticTests();
-    
+
     /**
      * Determines whenever class type passed overrides standard serialization routine of UObject
      * There is no really a clear way to do it, so we do some hacks

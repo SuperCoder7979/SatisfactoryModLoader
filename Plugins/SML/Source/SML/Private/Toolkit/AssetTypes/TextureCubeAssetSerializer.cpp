@@ -7,7 +7,7 @@
 
 void UTextureCubeAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UTextureCube)
-    SerializeTextureCube(Asset, Data, Context);
+        SerializeTextureCube(Asset, Data, Context);
     END_ASSET_SERIALIZATION
 }
 

@@ -1,25 +1,25 @@
 {
-	"FileVersion": 3,
-	"Version": 3,
-	"VersionName": "3.1.0",
-	"SemVersion": "3.1.0",
-	"FriendlyName": "Satisfactory Mod Loader",
-	"Description": "Mod loading and compatibility API for Satisfactory",
-	"Category": "Modding",
-	"CreatedBy": "SML Team",
-	"CreatedByURL": "https://github.com/satisfactorymodding/SatisfactoryModLoader",
-	"DocsURL": "https://docs.ficsit.app",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"IsExperimentalVersion": false,
-	"Installed": false,
-	"Modules": [
-		{
-			"Name": "SML",
-			"Type": "Runtime",
-			"LoadingPhase": "PostDefault"
-		}
-	]
+    "FileVersion": 3,
+    "Version": 3,
+    "VersionName": "3.1.0",
+    "SemVersion": "3.1.0",
+    "FriendlyName": "Satisfactory Mod Loader",
+    "Description": "Mod loading and compatibility API for Satisfactory",
+    "Category": "Modding",
+    "CreatedBy": "SML Team",
+    "CreatedByURL": "https://github.com/satisfactorymodding/SatisfactoryModLoader",
+    "DocsURL": "https://docs.ficsit.app",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": false,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "SML",
+            "Type": "Runtime",
+            "LoadingPhase": "PostDefault"
+        }
+    ]
 }

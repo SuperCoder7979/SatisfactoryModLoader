@@ -8,5 +8,5 @@ class SML_API UUserDefinedEnumAssetSerializer : public UAssetTypeSerializer {
 public:
     virtual void SerializeAsset(TSharedRef<FSerializationContext> Context) const override;
 
-    virtual FName GetAssetClass() const override;    
+    virtual FName GetAssetClass() const override;
 };

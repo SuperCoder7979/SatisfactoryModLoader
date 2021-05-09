@@ -42,7 +42,7 @@ void FReflectedObjectState_Array::RemoveArrayElements(int32 Index, int32 Count) 
 TArray<FReflectedPropertyInfo> FReflectedObjectState_Array::GetAllProperties() const {
     FArrayProperty* ArrayProperty = Cast<FArrayProperty>(OwnerObjectState->FindPropertyByName(ArrayPropertyName));
     TArray<FReflectedPropertyInfo> ResultProperties;
-    
+
     if (ArrayProperty && ArrayProperty->HasAnyPropertyFlags(CPF_BlueprintVisible)) {
         const EReflectedPropertyType InnerPropertyType = DeterminePropertyType(ArrayProperty->Inner);
         if (InnerPropertyType != EReflectedPropertyType::ERPT_Invalid) {
@@ -53,7 +53,7 @@ TArray<FReflectedPropertyInfo> FReflectedObjectState_Array::GetAllProperties() c
                 const FName PropertyName = *FString::FromInt(i);
                 ResultProperties.Add(FReflectedPropertyInfo{PropertyName, InnerPropertyType});
             }
-        } 
+        }
     }
     return ResultProperties;
 }
@@ -77,7 +77,7 @@ void* FReflectedObjectState_Array::GetPropertyValue(const FName PropertyName) {
     if (ArrayProperty && ArrayProperty->HasAnyPropertyFlags(CPF_BlueprintVisible)) {
         void* PropertyValue = OwnerObjectState->GetPropertyValue(ArrayPropertyName);
         FScriptArrayHelper ArrayHelper{ArrayProperty, PropertyValue};
-        
+
         const int32 ArrayIndex = FCString::Atoi(*PropertyName.ToString());
         if (ArrayHelper.IsValidIndex(ArrayIndex)) {
             return ArrayHelper.GetRawPtr(ArrayIndex);
@@ -157,11 +157,11 @@ void* FReflectedObjectState_ScriptStruct::GetObjectData() {
 void FReflectedObjectState_ScriptStruct::AddReferencedObjects(FReferenceCollector& ReferenceCollector) {
     UScriptStruct* OldStruct = ScriptStruct;
     ReferenceCollector.AddReferencedObject(ScriptStruct);
-    //If struct defined custom AddStructReferencedObjects, call it directly
+    // If struct defined custom AddStructReferencedObjects, call it directly
     if (OldStruct->StructFlags & STRUCT_AddStructReferencedObjects) {
         OldStruct->GetCppStructOps()->AddStructReferencedObjects()(StructDataPointer, ReferenceCollector);
     } else {
-        //Otherwise fallback to slow UProperty reference traversal via serialization
+        // Otherwise fallback to slow UProperty reference traversal via serialization
         OldStruct->SerializeItem(ReferenceCollector.GetVerySlowReferenceCollectorArchive(), StructDataPointer, nullptr);
     }
 }
@@ -170,7 +170,7 @@ TArray<FReflectedPropertyInfo> FReflectedObjectState::GetAllProperties() const {
     UStruct* ObjectStruct = GetStructObject();
     TArray<FReflectedPropertyInfo> OutPropertyInfo;
     if (ObjectStruct != NULL) {
-        for(FProperty* Property = ObjectStruct->PropertyLink; Property; Property = Property->PropertyLinkNext) {
+        for (FProperty* Property = ObjectStruct->PropertyLink; Property; Property = Property->PropertyLinkNext) {
             if (Property->HasAnyPropertyFlags(CPF_BlueprintVisible)) {
                 const FName Name = Property->GetFName();
                 const EReflectedPropertyType PropertyType = DeterminePropertyType(Property);
@@ -233,9 +233,11 @@ void* FReflectedObjectState::GetObjectData() {
     return NULL;
 }
 
-FReflectedEnumValue::FReflectedEnumValue() : EnumerationType(NULL), RawEnumValue(0) {}
+FReflectedEnumValue::FReflectedEnumValue() : EnumerationType(NULL), RawEnumValue(0) {
+}
 
-FReflectedEnumValue::FReflectedEnumValue(UEnum* EnumType, int64 EnumValue) : EnumerationType(EnumType), RawEnumValue(EnumValue) {}
+FReflectedEnumValue::FReflectedEnumValue(UEnum* EnumType, int64 EnumValue) : EnumerationType(EnumType), RawEnumValue(EnumValue) {
+}
 
 UEnum* FReflectedEnumValue::GetEnumerationType() const {
     return EnumerationType;
@@ -290,8 +292,7 @@ EReflectedPropertyType DeterminePropertyType(FProperty* Property) {
         return EReflectedPropertyType::ERPT_Array;
     }
     if (FByteProperty* ByteProperty = Cast<FByteProperty>(Property)) {
-        if (ByteProperty->IsEnum())
-            return EReflectedPropertyType::ERPT_Enum;
+        if (ByteProperty->IsEnum()) return EReflectedPropertyType::ERPT_Enum;
         return EReflectedPropertyType::ERPT_Byte;
     }
     if (Property->IsA<FIntProperty>()) {
@@ -320,7 +321,7 @@ EReflectedPropertyType DeterminePropertyType(FProperty* Property) {
     }
     if (Property->IsA<FObjectPropertyBase>()) {
         return EReflectedPropertyType::ERPT_Object;
-    } 
+    }
     if (Property->IsA<FStructProperty>()) {
         return EReflectedPropertyType::ERPT_Struct;
     }
@@ -424,7 +425,7 @@ void FReflectedObject::SetEnumProperty(FName PropertyName, const FReflectedEnumV
 
         if (FByteProperty* ByteProperty = Cast<FByteProperty>(Property)) {
             if (ByteProperty->IsEnum() && ByteProperty->Enum == Enum.GetEnumerationType()) {
-                ByteProperty->SetPropertyValue_InContainer(PropertyValue, (uint8) Enum.GetCurrentValue());
+                ByteProperty->SetPropertyValue_InContainer(PropertyValue, (uint8)Enum.GetCurrentValue());
             }
         }
     }
@@ -453,7 +454,6 @@ void FReflectedObject::RemoveArrayElements(int32 Index, int32 Count) const {
         State->RemoveArrayElements(Index, Count);
     }
 }
-
 
 bool ComparePropertyNames(FName Name, FName Pattern, bool bStripName) {
     return bStripName ? (Name.ToString().StartsWith(Pattern.ToString())) : (Name == Pattern);

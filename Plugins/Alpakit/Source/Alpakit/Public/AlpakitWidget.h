@@ -5,7 +5,9 @@
 
 class SAlpakitWidget : public SCompoundWidget {
 public:
-    SLATE_BEGIN_ARGS(SAlpakitWidget) {}
+SLATE_BEGIN_ARGS(SAlpakitWidget) {
+        }
+
     SLATE_END_ARGS()
 
     void Construct(const FArguments& InArgs);

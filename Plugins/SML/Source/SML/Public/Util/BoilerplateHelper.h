@@ -1,9 +1,9 @@
 #pragma once
 
-//Contains macros useful for automatically generating boilerplate code among various places in FactoryGame
-//Currently it only contains IFGSaveInterface implementation, but you can add extra stuff here!
+// Contains macros useful for automatically generating boilerplate code among various places in FactoryGame
+// Currently it only contains IFGSaveInterface implementation, but you can add extra stuff here!
 
-//Declares standard method overrides for IFGSaveInterface
+// Declares standard method overrides for IFGSaveInterface
 #define DECLARE_FG_SAVE_INTERFACE() \
 public: \
     virtual void PreSaveGame_Implementation(int32 saveVersion, int32 gameVersion) override; \

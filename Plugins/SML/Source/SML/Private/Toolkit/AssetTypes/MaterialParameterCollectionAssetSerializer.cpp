@@ -5,8 +5,8 @@
 #include "Materials/MaterialParameterCollection.h"
 
 void UMaterialParameterCollectionAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
-    //In fact, MPC is one of the simplest assets to serialize
-    //It doesn't even have custom Serialize override with extra data, just normal UPROPERTY structs
+    // In fact, MPC is one of the simplest assets to serialize
+    // It doesn't even have custom Serialize override with extra data, just normal UPROPERTY structs
     BEGIN_ASSET_SERIALIZATION(UMaterialParameterCollection)
         SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION

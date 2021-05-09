@@ -40,7 +40,7 @@ enum class EReflectedPropertyType : uint8 {
     ERPT_Struct UMETA(DisplayName = "Struct"),
     ERPT_Object UMETA(DisplayName = "Object"),
     ERPT_Enum UMETA(DisplayName = "Enum")
-    //TODO interface support?
+    // TODO interface support?
 };
 
 /** Describes a single reflected property accessible to blueprints */
@@ -64,7 +64,7 @@ struct SML_API FReflectedEnumValue {
 public:
     FReflectedEnumValue();
     FReflectedEnumValue(UEnum* EnumType, int64 EnumValue);
-    
+
     int64 GetCurrentValue() const;
     void SetCurrentValue(int64 NewValue);
     UEnum* GetEnumerationType() const;
@@ -83,7 +83,7 @@ struct SML_API FReflectedObject {
 public:
     /** Setups state of this object from passed UObject pointer */
     void SetupFromUObject(UObject* Object);
-    
+
     /** Setups state of this object from passed struct type and data */
     void SetupFromStruct(UScriptStruct* StructType, const void* StructData = NULL);
 
@@ -100,23 +100,23 @@ public:
     FORCEINLINE void CopyWrappedStruct(T& OutStruct) const {
         CopyWrappedStruct(T::StaticStruct(), &OutStruct);
     }
-    
+
     /** Returns a list of all reflected properties exposed by this object */
     TArray<FReflectedPropertyInfo> GetReflectedProperties() const;
-    
-    //Begin UProperty accessors
+
+    // Begin UProperty accessors
     uint8 GetByteProperty(FName PropertyName) const;
     void SetByteProperty(FName PropertyName, uint8 Value) const;
-    
+
     int32 GetIntProperty(FName PropertyName) const;
     void SetIntProperty(FName PropertyName, int32 Value) const;
 
     int64 GetInt64Property(FName PropertyName) const;
     void SetInt64Property(FName PropertyName, int64 Value) const;
-    
+
     float GetFloatProperty(FName PropertyName) const;
     void SetFloatProperty(FName PropertyName, float Value) const;
-    
+
     FString GetStrProperty(FName PropertyName) const;
     void SetStrProperty(FName PropertyName, const FString Value) const;
 
@@ -140,10 +140,10 @@ public:
 
     FSoftObjectPtr GetSoftObjectProperty(FName PropertyName) const;
     void SetSoftObjectProperty(FName PropertyName, FSoftObjectPtr Object) const;
-    
+
     FReflectedObject GetStructProperty(FName PropertyName) const;
     void SetStructProperty(FName PropertyName, const FReflectedObject& Struct) const;
-    
+
     FReflectedObject GetArrayProperty(FName PropertyName) const;
 
     template<typename T>
@@ -155,7 +155,7 @@ public:
 
     FReflectedEnumValue GetEnumProperty(FName PropertyName) const;
     void SetEnumProperty(FName PropertyName, const FReflectedEnumValue& Enum) const;
-    //End UProperty accessors
+    // End UProperty accessors
 
     /** Exposes references to GC system */
     void AddStructReferencedObjects(class FReferenceCollector& Collector) const;
@@ -188,7 +188,7 @@ private:
         }
         return NULL;
     }
-    
+
     TSharedPtr<FReflectedObjectState> State;
 };
 
@@ -207,7 +207,7 @@ public:
     virtual int32 GetArrayNum() const override;
     virtual int32 AddNewArrayElement() const override;
     virtual void RemoveArrayElements(int32 Index, int32 Count) const override;
-    
+
     virtual TArray<FReflectedPropertyInfo> GetAllProperties() const override;
     virtual FProperty* FindPropertyByName(FName PropertyName) const override;
     virtual void* GetPropertyValue(FName PropertyName) override;

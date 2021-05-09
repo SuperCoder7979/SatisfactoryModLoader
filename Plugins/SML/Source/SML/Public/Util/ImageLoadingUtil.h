@@ -3,7 +3,7 @@
 #include "Engine/Texture2D.h"
 
 class SML_API FImageLoadingUtil {
-public:    
+public:
     /** Loads image from passed byte array and returns texture object */
     static UTexture2D* LoadImageFromByteArray(const TArray<uint8>& InByteArray, FString& OutErrorMessage);
 

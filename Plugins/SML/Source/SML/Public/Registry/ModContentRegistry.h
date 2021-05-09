@@ -9,7 +9,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogContentRegistry, Log, All);
 
 /** Holds basic information about a single content registration entry */
-//Should be very lightweight for network serialization, that's why we use FName and not FString here
+// Should be very lightweight for network serialization, that's why we use FName and not FString here
 USTRUCT(BlueprintType)
 struct SML_API FBasicRegistrationInfo {
     GENERATED_BODY()
@@ -68,18 +68,18 @@ struct SML_API FResearchTreeRegistrationInfo : public FBasicRegistrationInfo {
 public:
 };
 
-//Type T has to be serializable and should have serializable member with name RegisteredObject
-//Warning! You should manually call AddReferencedObjects so objects contained in this registry don't get GC'd
+// Type T has to be serializable and should have serializable member with name RegisteredObject
+// Warning! You should manually call AddReferencedObjects so objects contained in this registry don't get GC'd
 template<typename T>
 struct SML_API TInternalRegistryState {
 private:
     using KeyType = decltype(((T*)0)->RegisteredObject);
-    
+
     TArray<TSharedPtr<T>> RegistrationList;
     TMap<KeyType, TSharedPtr<T>> RegistrationMap;
-    
-    //Used for fast AddReferencedObjects implementation
-    //It cannot be UPROPERTY() because UHT won't understand UPROPERTY() declaration inside template struct
+
+    // Used for fast AddReferencedObjects implementation
+    // It cannot be UPROPERTY() because UHT won't understand UPROPERTY() declaration inside template struct
     TArray<UObject*> ReferencedObjects;
 
     /** Registration counter for this registry. Incremented every time registration occurs */
@@ -88,7 +88,7 @@ public:
     FORCEINLINE bool ContainsObject(const KeyType& KeyType) const {
         return RegistrationMap.Contains(KeyType);
     }
-    
+
     FORCEINLINE TSharedPtr<T> RegisterObject(const T& ObjectInfo) {
         check(!ContainsObject(ObjectInfo.RegisteredObject));
         TSharedPtr<T> RegistrationEntry = MakeShareable(new T{ObjectInfo});
@@ -123,7 +123,9 @@ struct FMissingObjectStruct {
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSchematicRegistered, TSubclassOf<UFGSchematic>, Schematic, FSchematicRegistrationInfo, RegistrationInfo);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnResearchTreeRegistered, TSubclassOf<UFGResearchTree>, ResearchTree, FResearchTreeRegistrationInfo, RegistrationInfo);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRecipeRegistered, TSubclassOf<UFGRecipe>, Recipe, FRecipeRegistrationInfo, RegistrationInfo);
 
 /**
@@ -132,7 +134,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRecipeRegistered, TSubclassOf<UF
  * All modded content of supported types should be registered there
  * to be correctly saved, loaded and identified by the game
  * and other information mods
- * 
+ *
  * If you don't need any dynamic behaviors, use properties in InitGameWorld instead
  * of calling methods on this object directly
  *
@@ -144,16 +146,16 @@ class SML_API AModContentRegistry : public AModSubsystem {
     GENERATED_BODY()
 public:
     AModContentRegistry();
-    
+
     /** Retrieves global mod content registry instance */
-	UFUNCTION(BlueprintPure, DisplayName = "GetModContentRegistry", meta = (DefaultToSelf = "WorldContext"))
+    UFUNCTION(BlueprintPure, DisplayName = "GetModContentRegistry", meta = (DefaultToSelf = "WorldContext"))
     static AModContentRegistry* Get(UObject* WorldContext);
 
     /**
      * Registers schematic to be usable by the game
      *    All recipes referenced by schematic are registered automatically
      *    All items referenced by registered recipes are associated with passed mod reference too
-     * 
+     *
      * @param ModReference identifier of the mod who is performing this registration
      * @param Schematic class of schematic to be registered
      */
@@ -182,7 +184,7 @@ public:
      */
     UFUNCTION(BlueprintCallable, CustomThunk)
     void RegisterRecipe(const FName ModReference, TSubclassOf<UFGRecipe> Recipe);
-    
+
     /** Register resource sink item points for each item row in the passed table object */
     UFUNCTION(BlueprintCallable, CustomThunk)
     void RegisterResourceSinkItemPointTable(const FName ModReference, UDataTable* PointTable);
@@ -208,7 +210,7 @@ public:
         }
         return RegistrationInfos;
     }
-    
+
     /** Retrieves registration entry for recipe */
     UFUNCTION(BlueprintPure)
     FORCEINLINE FRecipeRegistrationInfo GetRecipeInfo(TSubclassOf<UFGRecipe> Recipe) const {
@@ -225,7 +227,7 @@ public:
         }
         return RegistrationInfos;
     }
-    
+
     /** Retrieves registration entry for research tree */
     UFUNCTION(BlueprintPure)
     FORCEINLINE FResearchTreeRegistrationInfo GetResearchTreeRegistrationInfo(TSubclassOf<UFGResearchTree> ResearchTree) const {
@@ -242,7 +244,7 @@ public:
         }
         return RegistrationInfos;
     }
-    
+
     /** Retrieves registration entry for schematic */
     UFUNCTION(BlueprintPure)
     FORCEINLINE FSchematicRegistrationInfo GetSchematicRegistrationInfo(TSubclassOf<UFGSchematic> Schematic) const {
@@ -253,9 +255,9 @@ public:
     /** Returns true when given recipe is registered */
     UFUNCTION(BlueprintPure)
     FORCEINLINE bool IsRecipeRegistered(TSubclassOf<UFGRecipe> Recipe) const {
-        return Recipe != NULL && RecipeRegistryState.ContainsObject(Recipe);    
+        return Recipe != NULL && RecipeRegistryState.ContainsObject(Recipe);
     }
-    
+
     /** Returns true when given schematic is registered */
     UFUNCTION(BlueprintPure)
     FORCEINLINE bool IsSchematicRegistered(TSubclassOf<UFGSchematic> Schematic) const {
@@ -271,28 +273,28 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
 
-    //Add objects from registry states to reference collector
+    // Add objects from registry states to reference collector
     static void AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector);
-	
-	//Callbacks to be fired when new entries are registered
-	
-	/** Called when recipe is registered into content registry */
-	UPROPERTY(BlueprintAssignable)
-	FOnRecipeRegistered OnRecipeRegistered;
 
-	/** Called when schematic is registered into content registry */
-	UPROPERTY(BlueprintAssignable)
-	FOnSchematicRegistered OnSchematicRegistered;
+    // Callbacks to be fired when new entries are registered
 
-	/** Called when research tree is registered into the registry */
-	UPROPERTY(BlueprintAssignable)
-	FOnResearchTreeRegistered OnResearchTreeRegistered;
+    /** Called when recipe is registered into content registry */
+    UPROPERTY(BlueprintAssignable)
+    FOnRecipeRegistered OnRecipeRegistered;
+
+    /** Called when schematic is registered into content registry */
+    UPROPERTY(BlueprintAssignable)
+    FOnSchematicRegistered OnSchematicRegistered;
+
+    /** Called when research tree is registered into the registry */
+    UPROPERTY(BlueprintAssignable)
+    FOnResearchTreeRegistered OnResearchTreeRegistered;
 protected:
-	/** Called early when subsystem is spawned */
-	virtual void Init() override;
+    /** Called early when subsystem is spawned */
+    virtual void Init() override;
 private:
     friend class FSatisfactoryModLoader;
-	friend class UWorldModuleManager;
+    friend class UWorldModuleManager;
 
     /** True if content registry is frozen and does not accept registrations anymore */
     bool bIsRegistryFrozen;
@@ -304,12 +306,12 @@ private:
     /** True when we have subscribed to schematic manager delegates already */
     bool bSubscribedToSchematicManager;
 
-	/** Pending registrations of item sink point tables */
-	UPROPERTY()
-	TMap<UDataTable*, FName> PendingItemSinkPointsRegistrations;
+    /** Pending registrations of item sink point tables */
+    UPROPERTY()
+    TMap<UDataTable*, FName> PendingItemSinkPointsRegistrations;
 
-	/** Pointer to the currently active script callstack frame, used for debugging purposes */
-	FFrame* ActiveScriptFramePtr;
+    /** Pointer to the currently active script callstack frame, used for debugging purposes */
+    FFrame* ActiveScriptFramePtr;
 
     /**
      * Map with cached registration info for each discovered item descriptor class
@@ -343,25 +345,25 @@ private:
     /** Quick version of UBlueprintAssetHelperLibrary, using predefined mod reference for vanilla content */
     static FName FindContentOwnerFast(UClass* ContentClass);
 
-	/** Called when module content registration is finished and registry can be frozen */
-	void NotifyModuleRegistrationFinished();
+    /** Called when module content registration is finished and registry can be frozen */
+    void NotifyModuleRegistrationFinished();
 
-	/** Flushed pending resource sink registrations into the resource sink subsystem, if it is available */
-	void FlushPendingResourceSinkRegistrations();
-   
+    /** Flushed pending resource sink registrations into the resource sink subsystem, if it is available */
+    void FlushPendingResourceSinkRegistrations();
+
     /** Freezes registry in place and clears out all unreferenced objects */
     void FreezeRegistryState();
     /** Ensures that registry is not frozen and we can perform registration */
     void EnsureRegistryUnfrozen() const;
     /** Checks SaveGame fields for unregistered objects and NULLs. Requires registry to be frozen already */
     void CheckSavedDataForMissingObjects();
-	/** Unlocks tutorial schematics if it's needed */
-	void UnlockTutorialSchematics();
+    /** Unlocks tutorial schematics if it's needed */
+    void UnlockTutorialSchematics();
 
     /** Called when schematic is purchased in schematic manager */
     UFUNCTION()
     void OnSchematicPurchased(TSubclassOf<UFGSchematic> Schematic);
-    
+
     /** Associate items referenced in recipe with given mod reference if they are not associated already */
     void MarkItemDescriptorsFromRecipe(const TSubclassOf<UFGRecipe>& Recipe, const FName ModReference);
 
@@ -381,10 +383,10 @@ private:
         return RegistrationInfo;
     }
 
-	//Custom Thunks for calling Register functions through Reflection, primary point of which
-	//is providing FFrame callstack context to the registration methods for debugging in seamless manner
-	DECLARE_FUNCTION(execRegisterResourceSinkItemPointTable);
-	DECLARE_FUNCTION(execRegisterRecipe);
-	DECLARE_FUNCTION(execRegisterResearchTree);
-	DECLARE_FUNCTION(execRegisterSchematic);
+    // Custom Thunks for calling Register functions through Reflection, primary point of which
+    // is providing FFrame callstack context to the registration methods for debugging in seamless manner
+    DECLARE_FUNCTION(execRegisterResourceSinkItemPointTable);
+    DECLARE_FUNCTION(execRegisterRecipe);
+    DECLARE_FUNCTION(execRegisterResearchTree);
+    DECLARE_FUNCTION(execRegisterSchematic);
 };

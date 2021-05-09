@@ -29,7 +29,10 @@ void UConfigPropertyFloat::FillConfigStruct_Implementation(const FReflectedObjec
     ReflectedObject.SetFloatProperty(*VariableName, Value);
 }
 
-FConfigVariableDescriptor UConfigPropertyFloat::CreatePropertyDescriptor_Implementation(
-    UConfigGenerationContext* Context, const FString& OuterPath) const {
+FConfigVariableDescriptor UConfigPropertyFloat::CreatePropertyDescriptor_Implementation
+(
+    UConfigGenerationContext* Context,
+    const FString& OuterPath
+) const {
     return UConfigVariableLibrary::MakeConfigVariablePrimitive(EConfigVariableType::ECVT_Float);
 }

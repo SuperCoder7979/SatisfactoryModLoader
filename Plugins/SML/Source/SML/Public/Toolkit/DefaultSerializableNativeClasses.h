@@ -22,8 +22,8 @@
 #include "FGGameMode.h"
 #include "FGGameState.h"
 
-//Classes below don't really have custom serialization, just
-//fixes for loading legacy data and pre-initializing contents
+// Classes below don't really have custom serialization, just
+// fixes for loading legacy data and pre-initializing contents
 //
 #define APPEND_DEFAULT_SERIALIZABLE_NATIVE_CLASSES(Appender) \
     Appender(AActor::StaticClass()); \

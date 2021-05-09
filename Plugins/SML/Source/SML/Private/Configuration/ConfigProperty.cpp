@@ -17,7 +17,7 @@ void UConfigProperty::Deserialize_Implementation(const URawFormatValue* Value) {
 }
 
 void UConfigProperty::MarkDirty() {
-    //Let closest Outer object implementing IConfigValueDirtyHandlerInterface handle MarkDirty call
+    // Let closest Outer object implementing IConfigValueDirtyHandlerInterface handle MarkDirty call
     for (UObject* NextOuter = GetOuter(); NextOuter != NULL; NextOuter = NextOuter->GetOuter()) {
         if (NextOuter->Implements<UConfigValueDirtyHandlerInterface>()) {
             IConfigValueDirtyHandlerInterface::Execute_MarkDirty(NextOuter);
@@ -26,8 +26,11 @@ void UConfigProperty::MarkDirty() {
     }
 }
 
-void UConfigProperty::FillConfigStruct_Implementation(const FReflectedObject& ReflectedObject,
-    const FString& VariableName) const {
+void UConfigProperty::FillConfigStruct_Implementation
+(
+    const FReflectedObject& ReflectedObject,
+    const FString& VariableName
+) const {
     checkf(false, TEXT("FillConfigStruct not implemented"));
 }
 

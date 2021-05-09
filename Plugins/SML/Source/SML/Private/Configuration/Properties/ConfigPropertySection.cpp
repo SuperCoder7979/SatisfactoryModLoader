@@ -7,9 +7,13 @@
 #define LOCTEXT_NAMESPACE "SML"
 
 FString UConfigPropertySection::DescribeValue_Implementation() const {
-    const FString ElementsString = FString::JoinBy(SectionProperties, TEXT(", "), [this](const TPair<FString, UConfigProperty*>& Property) {
-        return FString::Printf(TEXT("%s = %s"), *Property.Key, *Property.Value->DescribeValue());
-    });
+    const FString ElementsString = FString::JoinBy(
+        SectionProperties,
+        TEXT(", "),
+        [this](const TPair<FString, UConfigProperty*>& Property) {
+            return FString::Printf(TEXT("%s = %s"), *Property.Key, *Property.Value->DescribeValue());
+        }
+    );
     return FString::Printf(TEXT("[section %s]"), *ElementsString);
 }
 
@@ -93,8 +97,11 @@ void UConfigPropertySection::FillConfigStruct_Implementation(const FReflectedObj
     ReflectedObject.SetStructProperty(*VariableName, ChildObject);
 }
 
-FConfigVariableDescriptor UConfigPropertySection::CreatePropertyDescriptor_Implementation(
-    UConfigGenerationContext* Context, const FString& OuterPath) const {
+FConfigVariableDescriptor UConfigPropertySection::CreatePropertyDescriptor_Implementation
+(
+    UConfigGenerationContext* Context,
+    const FString& OuterPath
+) const {
     UConfigGeneratedStruct* GeneratedStruct = Context->CreateNewConfigStruct(OuterPath);
     for (const TPair<FString, UConfigProperty*>& Property : SectionProperties) {
         const FString InnerPath = FString::Printf(TEXT("%s_%s"), *OuterPath, *Property.Key);

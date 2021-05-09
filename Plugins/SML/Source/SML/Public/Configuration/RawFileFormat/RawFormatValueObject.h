@@ -102,7 +102,7 @@ FORCEINLINE void URawFormatValueObject::SetFloat(const FString& Key, const float
 }
 
 FORCEINLINE void URawFormatValueObject::AddValue(const FString& Key, URawFormatValue* ValueClass) {
-    //Sanity check to ensure hierarchical view inside this raw value
+    // Sanity check to ensure hierarchical view inside this raw value
     checkf(ValueClass && ValueClass->GetOuter() == this, TEXT("Cannot add URawFormatValue residuing inside another outer object (should be URawFormatValueArray)"));
     Values.Add(Key, ValueClass);
 };

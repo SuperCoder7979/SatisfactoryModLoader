@@ -9,7 +9,7 @@ struct SML_API FDynamicStructInfo {
     GENERATED_BODY()
 public:
     UPROPERTY()
-    UScriptStruct* Struct;    
+    UScriptStruct* Struct;
     void* StructValue;
 };
 
@@ -23,32 +23,36 @@ public:
 
         FStructProperty* StructProperty = CastField<FStructProperty>(Stack.MostRecentProperty);
         if (StructProperty == NULL) {
-            const FBlueprintExceptionInfo ExceptionInfo(EBlueprintExceptionType::AccessViolation,
-                INVTEXT("Tried to pass non-struct object to UFUNCTION. Only structs are supported"));
+            const FBlueprintExceptionInfo ExceptionInfo(
+                EBlueprintExceptionType::AccessViolation,
+                INVTEXT("Tried to pass non-struct object to UFUNCTION. Only structs are supported")
+            );
             FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
             return FDynamicStructInfo{NULL, NULL};
         }
-		
+
         if (Stack.MostRecentPropertyAddress == NULL) {
-            const FBlueprintExceptionInfo ExceptionInfo(EBlueprintExceptionType::AccessViolation,
-                INVTEXT("Tried to pass NULL struct object to UFUNCTION."));
+            const FBlueprintExceptionInfo ExceptionInfo(
+                EBlueprintExceptionType::AccessViolation,
+                INVTEXT("Tried to pass NULL struct object to UFUNCTION.")
+            );
             FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
             return FDynamicStructInfo{NULL, NULL};
         }
         void* StructValue = Stack.MostRecentPropertyAddress;
         return FDynamicStructInfo{StructProperty->Struct, StructValue};
     }
-    
-    template <typename T>
+
+    template<typename T>
     static T* FindPropertyChecked(UStruct* Class, const TCHAR* PropertyName) {
         T* Property = Cast<T>(Class->FindPropertyByName(PropertyName));
         checkf(Property, TEXT("Property with given name not found in class: %s"), PropertyName);
         return Property;
     }
-    
-    template <typename T>
+
+    template<typename T>
     static T* FindPropertyByShortNameChecked(UStruct* Class, const TCHAR* PropertyName) {
-        for(FProperty* Property = Class->PropertyLink; Property; Property = Property->PropertyLinkNext) {
+        for (FProperty* Property = Class->PropertyLink; Property; Property = Property->PropertyLinkNext) {
             if (Property->GetName().StartsWith(PropertyName)) {
                 if (T* CastedProperty = Cast<T>(Property)) {
                     return CastedProperty;
@@ -58,7 +62,7 @@ public:
         checkf(false, TEXT("Property with given name not found in class: %s"), PropertyName);
         return nullptr;
     }
-    
+
     template<typename T>
     static typename T::TCppType GetPropertyValue(const UObject* Object, const TCHAR* PropertyName, int32 ArrayIndex = 0) {
         T* Property = Cast<T>(Object->GetClass()->FindPropertyByName(PropertyName));
@@ -79,7 +83,7 @@ public:
         checkf(Property, TEXT("Property not found in class %s: %s"), *Object->GetClass()->GetPathName(), PropertyName);
         void* DestAddress = Property->ContainerPtrToValuePtr<void>(Object, ArrayIndex);
         Property->CopyValuesInternal(DestAddress, ValuePointer, 1);
-    } 
+    }
 
     template<typename T>
     static void SetPropertyValue(UObject* Object, const TCHAR* PropertyName, const typename T::TCppType& Value, int32 ArrayIndex = 0) {
@@ -90,20 +94,22 @@ public:
 
     static FProperty* FindParameterByIndex(UFunction* Function, int32 Index) {
         int32 CurrentIndex = 0;
-        for(TFieldIterator<FProperty> It(Function); It && (It->PropertyFlags & CPF_Parm); ++It) {
-            if (CurrentIndex++ == Index)
-                return *It;
+        for (TFieldIterator<FProperty> It(Function); It && (It->PropertyFlags & CPF_Parm); ++It) {
+            if (CurrentIndex++ == Index) return *It;
         }
         return NULL;
     }
 
-    template <typename T>
+    template<typename T>
     static UFunction* CallScriptFunction(UObject* Object, const TCHAR* FunctionName, T* ParamStruct) {
         UFunction* Function = Object->FindFunction(FunctionName);
         checkf(Function, TEXT("Function not found: %s"), FunctionName);
-        checkf(Function->ParmsSize == static_cast<uint16>(sizeof(T)) || (Function->ParmsSize == 0 && ParamStruct == NULL),
+        checkf(
+            Function->ParmsSize == static_cast<uint16>(sizeof(T)) || (Function->ParmsSize == 0 && ParamStruct == NULL),
             TEXT("Function parameter layout doesn't match provided parameter struct: Expected %d bytes, got %u"),
-            Function->ParmsSize, sizeof(T));
+            Function->ParmsSize,
+            sizeof(T)
+        );
         Object->ProcessEvent(Function, ParamStruct);
         return Function;
     }

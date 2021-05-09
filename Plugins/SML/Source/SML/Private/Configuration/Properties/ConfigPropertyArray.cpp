@@ -33,7 +33,7 @@ bool UConfigPropertyArray::CanEditChange(const FProperty* InProperty) const {
 
 EDataValidationResult UConfigPropertyArray::IsDataValid(TArray<FText>& ValidationErrors) {
  /*
-	if (DefaultValue == NULL) {
+    if (DefaultValue == NULL) {
         ValidationErrors.Add(FText::Format(LOCTEXT("ArrayDefaultValueConfigNotSet",
             "Default Value for Array Property '{0}' is not set."), FText::FromString(GetPathName())));
         return EDataValidationResult::Invalid;
@@ -51,21 +51,24 @@ EDataValidationResult UConfigPropertyArray::IsDataValid(TArray<FText>& Validatio
                 FText::FromString(ConfigProperty ? ConfigProperty->GetClass()->GetName() : TEXT("None"))));
             ValidationResult = EDataValidationResult::Invalid;
         }
-    }    
+    }
     return ValidationResult;
 }
 #endif
 
 FString UConfigPropertyArray::DescribeValue_Implementation() const {
-    const FString ElementsString = FString::JoinBy(Values, TEXT(", "),
-        [](const UConfigProperty* Value) { return Value->DescribeValue(); });
+    const FString ElementsString = FString::JoinBy(
+        Values,
+        TEXT(", "),
+        [](const UConfigProperty* Value) { return Value->DescribeValue(); }
+    );
     return FString::Printf(TEXT("[array: %s]"), *ElementsString);
 }
 
 URawFormatValue* UConfigPropertyArray::Serialize_Implementation(UObject* Outer) const {
     URawFormatValueArray* SerializedArray = NewObject<URawFormatValueArray>(Outer);
     for (const UConfigProperty* Value : Values) {
-        //Specify serialization array as outer for allocated value objects
+        // Specify serialization array as outer for allocated value objects
         SerializedArray->AddValue(Value->Serialize(SerializedArray));
     }
     return SerializedArray;
@@ -74,9 +77,9 @@ URawFormatValue* UConfigPropertyArray::Serialize_Implementation(UObject* Outer) 
 void UConfigPropertyArray::Deserialize_Implementation(const URawFormatValue* Value) {
     const URawFormatValueArray* SerializedArray = Cast<URawFormatValueArray>(Value);
     if (SerializedArray != NULL) {
-        //Empty array but reserve enough Slack space to keep all elements we are going to add
+        // Empty array but reserve enough Slack space to keep all elements we are going to add
         Values.Empty(SerializedArray->Num());
-        //Just iterate raw format array and deserialize each of it's items
+        // Just iterate raw format array and deserialize each of it's items
         for (URawFormatValue* RawFormatValue : SerializedArray->GetUnderlyingArrayRef()) {
             UConfigProperty* AllocatedValue = AddNewElement();
             AllocatedValue->Deserialize(RawFormatValue);
@@ -94,7 +97,10 @@ void UConfigPropertyArray::FillConfigStruct_Implementation(const FReflectedObjec
     }
 }
 
-FConfigVariableDescriptor UConfigPropertyArray::CreatePropertyDescriptor_Implementation(
-    UConfigGenerationContext* Context, const FString& OuterPath) const {
+FConfigVariableDescriptor UConfigPropertyArray::CreatePropertyDescriptor_Implementation
+(
+    UConfigGenerationContext* Context,
+    const FString& OuterPath
+) const {
     return UConfigVariableLibrary::MakeConfigVariableArray(DefaultValue->CreatePropertyDescriptor(Context, OuterPath));
 }

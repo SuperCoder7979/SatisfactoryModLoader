@@ -6,5 +6,5 @@
 /** World module initialized only for the main menu world */
 UCLASS(Blueprintable)
 class SML_API UMenuWorldModule : public UWorldModule {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };

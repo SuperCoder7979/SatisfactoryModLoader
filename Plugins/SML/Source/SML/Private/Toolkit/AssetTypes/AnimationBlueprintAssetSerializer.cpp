@@ -7,11 +7,11 @@
 
 void UAnimationBlueprintAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION_BP(UAnimBlueprintGeneratedClass)
-    DISABLE_SERIALIZATION(FExposedValueHandler, Function);
-    SERIALIZE_ASSET_OBJECT
+        DISABLE_SERIALIZATION(FExposedValueHandler, Function);
+        SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION
 }
 
 FName UAnimationBlueprintAssetSerializer::GetAssetClass() const {
-    return TEXT("AnimBlueprint"); //UAnimBlueprint::StaticClass()->GetFName();
+    return TEXT("AnimBlueprint"); // UAnimBlueprint::StaticClass()->GetFName();
 }

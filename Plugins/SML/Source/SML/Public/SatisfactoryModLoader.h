@@ -11,40 +11,40 @@ public:
 
 class SML_API FSatisfactoryModLoader {
 private:
-	//Delete all the constructors, all members of this class are static
-	FSatisfactoryModLoader() = delete;
-	FSatisfactoryModLoader(const FSatisfactoryModLoader&) = delete;
-	FSatisfactoryModLoader(FSatisfactoryModLoader&&) = delete;
+    // Delete all the constructors, all members of this class are static
+    FSatisfactoryModLoader() = delete;
+    FSatisfactoryModLoader(const FSatisfactoryModLoader&) = delete;
+    FSatisfactoryModLoader(FSatisfactoryModLoader&&) = delete;
 public:
-	/** Returns version of the mod loader */
-	static FVersion GetModLoaderVersion();
+    /** Returns version of the mod loader */
+    static FVersion GetModLoaderVersion();
 
-	/** Returns map of implementation dependent extra attributes describing current mod loader configuration */
-	static TMap<FName, FString> GetExtraAttributes();
-	
-	/** Returns active SML configuration. If not loaded, it will return empty struct */
-	FORCEINLINE static FSMLConfiguration GetSMLConfiguration() { return SMLConfigurationPrivate; }
+    /** Returns map of implementation dependent extra attributes describing current mod loader configuration */
+    static TMap<FName, FString> GetExtraAttributes();
+
+    /** Returns active SML configuration. If not loaded, it will return empty struct */
+    FORCEINLINE static FSMLConfiguration GetSMLConfiguration() { return SMLConfigurationPrivate; }
 private:
-	friend class FSMLModule;
-	
-	static TSharedPtr<FModHandler> ModHandlerPrivate;
-	static FSMLConfiguration SMLConfigurationPrivate;
+    friend class FSMLModule;
 
-	/** Loads SML configuration from file and optionally saves it back */
-	static void LoadSMLConfiguration(bool bAllowSave);
+    static TSharedPtr<FModHandler> ModHandlerPrivate;
+    static FSMLConfiguration SMLConfigurationPrivate;
 
-	/** Checks game and bootstrapper version before launching */
-	static void CheckGameVersion();
+    /** Loads SML configuration from file and optionally saves it back */
+    static void LoadSMLConfiguration(bool bAllowSave);
 
-	/** Registers SML subsystems */
-	static void RegisterSubsystemPatches();
+    /** Checks game and bootstrapper version before launching */
+    static void CheckGameVersion();
 
-	/** Registers global SML subsystems that are registered only once */
-	static void RegisterSubsystems();
+    /** Registers SML subsystems */
+    static void RegisterSubsystemPatches();
 
-	/** Does early mod loading initialization like allocating mod handler, discovering mods and loading DLLs */
-	static void PreInitializeModLoading();
+    /** Registers global SML subsystems that are registered only once */
+    static void RegisterSubsystems();
 
-	/** Finishes mod loading and mounts packages, initializes subsystems, loads mod configurations, etc */
-	static void InitializeModLoading();
+    /** Does early mod loading initialization like allocating mod handler, discovering mods and loading DLLs */
+    static void PreInitializeModLoading();
+
+    /** Finishes mod loading and mounts packages, initializes subsystems, loads mod configurations, etc */
+    static void InitializeModLoading();
 };

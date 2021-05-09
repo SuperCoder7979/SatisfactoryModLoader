@@ -6,5 +6,5 @@ UCLASS(EditInlineNew)
 class SML_API UCP_String : public UConfigPropertyString {
     GENERATED_BODY()
 public:
-   
+
 };

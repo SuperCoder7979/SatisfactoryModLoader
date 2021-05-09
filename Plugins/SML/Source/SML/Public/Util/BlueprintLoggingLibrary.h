@@ -32,12 +32,12 @@ public:
     */
     UFUNCTION(BlueprintCallable, Category = "SML|Logging", CustomThunk, meta = (BlueprintThreadSafe))
     static void LogDisplay(const FString& Str) BP_FUNCTION_ONLY_STUB();
-	
+
     /**
     * Logs the given string in warning level to the SML Log file and the game log as well as into the console
     */
     UFUNCTION(BlueprintCallable, Category = "SML|Logging", CustomThunk, meta = (BlueprintThreadSafe))
-    static void LogWarning(const FString& Str) BP_FUNCTION_ONLY_STUB(); 
+    static void LogWarning(const FString& Str) BP_FUNCTION_ONLY_STUB();
 
     /**
     * Logs the given string in error level to the SML Log file and the game log as well as into the console

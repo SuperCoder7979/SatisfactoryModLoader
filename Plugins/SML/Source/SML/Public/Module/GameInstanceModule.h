@@ -17,11 +17,11 @@ struct SML_API FModKeyBindingInfo {
     /** Name of the action this key bindings corresponds to. Should be prefixed with ModReference. */
     UPROPERTY(EditAnywhere)
     FName ActionName;
-    
+
     /** Information about key binding being registered */
     UPROPERTY(EditAnywhere)
     FInputActionKeyMapping KeyMapping;
-    
+
     /** Display name of Key Binding in Options|Controls menu */
     UPROPERTY(EditAnywhere)
     FText DisplayName;
@@ -35,14 +35,14 @@ struct SML_API FModAxisBindingInfo {
     /** Name of the axis this key bindings corresponds to. Should be prefixed with ModReference. */
     UPROPERTY(EditAnywhere)
     FName AxisName;
-    
+
     /** Information about Positive (Scale > 0) axis mapping. AxisName should be the same and prefixed with ModReference. */
     UPROPERTY(EditAnywhere)
     FInputAxisKeyMapping PositiveAxisMapping;
     /** Information about Negative (Scale < 0) axis mapping. AxisName should be the same and prefixed with ModReference. */
     UPROPERTY(EditAnywhere)
     FInputAxisKeyMapping NegativeAxisMapping;
-    
+
     /** Display name of *Positive* Axis Binding in Options|Controls menu */
     UPROPERTY(EditAnywhere)
     FText PositiveAxisDisplayName;
@@ -55,15 +55,15 @@ struct SML_API FModAxisBindingInfo {
 UCLASS(Blueprintable)
 class SML_API UGameInstanceModule : public UModModule {
     GENERATED_BODY()
-public:    
+public:
     /** Returns game instance this module is attached to */
     UFUNCTION(BlueprintPure)
     UGameInstance* GetGameInstance() const;
-  
+
     /** Configurations defined and used by this mod */
     UPROPERTY(EditDefaultsOnly, Category = Default)
     TArray<TSubclassOf<UModConfiguration>> ModConfigurations;
-    
+
     /** Key Bindings for this mod to be registered */
     UPROPERTY(EditDefaultsOnly, Category = Default)
     TArray<FModKeyBindingInfo> ModKeyBindings;
@@ -94,7 +94,7 @@ public:
 protected:
     /** Allow SetOwnerModReference access to game instance module manager */
     friend class UGameInstanceModuleManager;
-    
+
     /** Registers default content from properties specified above */
     void RegisterDefaultContent();
 };

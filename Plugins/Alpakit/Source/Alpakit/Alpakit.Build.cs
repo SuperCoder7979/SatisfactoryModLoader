@@ -2,26 +2,26 @@
 
 using UnrealBuildTool;
 
-public class Alpakit : ModuleRules
-{
-	public Alpakit(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		bLegacyPublicIncludePaths = false;
+public class Alpakit : ModuleRules {
+    public Alpakit(ReadOnlyTargetRules Target) : base(Target) {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        bLegacyPublicIncludePaths = false;
 
-		PublicDependencyModuleNames.AddRange(new[] {
-			"Core",
-		});
-		
-		PrivateDependencyModuleNames.AddRange(new[] {
-				"Projects",
-				"InputCore",
-				"UnrealEd",
-				"LevelEditor",
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-		});
-	}
+        PublicDependencyModuleNames.AddRange(new[]
+        {
+            "Core"
+        });
+
+        PrivateDependencyModuleNames.AddRange(new[]
+        {
+            "Projects",
+            "InputCore",
+            "UnrealEd",
+            "LevelEditor",
+            "CoreUObject",
+            "Engine",
+            "Slate",
+            "SlateCore"
+        });
+    }
 }

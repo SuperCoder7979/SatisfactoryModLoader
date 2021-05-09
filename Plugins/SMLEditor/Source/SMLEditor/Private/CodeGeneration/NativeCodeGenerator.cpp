@@ -14,15 +14,23 @@ bool FNativeCodeGenerator::GenerateConfigStructForConfigurationAsset(UBlueprint*
     if (!FUserDefinedStructCodeGenerator::CreateConfigStructContextForConfigurationAsset(Blueprint, GenerationContext)) {
         return false;
     }
-    
+
     const FString BlueprintName = Blueprint->GetName();
     const FString BaseStructName = FString::Printf(TEXT("%sStruct"), *BlueprintName);
-    
+
     FString OutFailureMessage;
     if (!CanGenerateNativeConfiguration(GenerationContext, OutFailureMessage)) {
-        FMessageDialog::Open(EAppMsgType::Ok, FText::Format(LOCTEXT("CannotGenerateNativeConfig",
-            "Cannot generate native header file for configuration blueprint '{0}': {1}."),
-            FText::FromString(BlueprintName), FText::FromString(OutFailureMessage)));
+        FMessageDialog::Open(
+            EAppMsgType::Ok,
+            FText::Format(
+                LOCTEXT(
+                    "CannotGenerateNativeConfig",
+                    "Cannot generate native header file for configuration blueprint '{0}': {1}."
+                ),
+                FText::FromString(BlueprintName),
+                FText::FromString(OutFailureMessage)
+            )
+        );
         return false;
     }
 
@@ -42,11 +50,15 @@ bool FNativeCodeGenerator::GenerateConfigStructForConfigurationAsset(UBlueprint*
     TArray<FString> SaveFilenames;
 
     const FText DialogTitle = FText::Format(LOCTEXT("SaveNativeConfigHeader", "Save Configuration '{0}' Struct Header"), FText::FromString(BlueprintName));
-    DesktopPlatform->SaveFileDialog(ParentWindowHandle, DialogTitle.ToString(),
-            *SourceDirectory, *SuggestedFilename,
-                     TEXT("C++ Header Files (*.h)|*.h"),
-                     EFileDialogFlags::None,
-                     SaveFilenames);
+    DesktopPlatform->SaveFileDialog(
+        ParentWindowHandle,
+        DialogTitle.ToString(),
+        *SourceDirectory,
+        *SuggestedFilename,
+        TEXT("C++ Header Files (*.h)|*.h"),
+        EFileDialogFlags::None,
+        SaveFilenames
+    );
 
     if (SaveFilenames.Num() == 0) {
         FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("NoFilesSelected", "You need to select a file name you want to use to save the struct header"));
@@ -56,7 +68,7 @@ bool FNativeCodeGenerator::GenerateConfigStructForConfigurationAsset(UBlueprint*
     const FString ResultHeaderFilename = SaveFilenames[0];
     FStringOutputDevice StringOutputDevice;
     StringOutputDevice.SetAutoEmitLineTerminator(true);
-    
+
     const FString CleanHeaderFilename = FPaths::GetBaseFilename(ResultHeaderFilename);
     GenerateConfigurationCodeHeader(CleanHeaderFilename, Blueprint, GenerationContext, StringOutputDevice);
 
@@ -64,10 +76,17 @@ bool FNativeCodeGenerator::GenerateConfigStructForConfigurationAsset(UBlueprint*
         FMessageDialog::Open(EAppMsgType::Ok, FText::Format(LOCTEXT("FailedToOpenFile", "Failed to save header file at path '{0}'"), FText::FromString(ResultHeaderFilename)));
         return false;
     }
-    
-    FUserDefinedStructCodeGenerator::ShowSuccessNotification(FText::Format(LOCTEXT("BlueprintConfigStructRegenerated",
-               "Successfully generated Native Struct for Configuration '{0}' and saved them at '{1}'"),
-               FText::FromString(Blueprint->GetName()), FText::FromString(ResultHeaderFilename)));
+
+    FUserDefinedStructCodeGenerator::ShowSuccessNotification(
+        FText::Format(
+            LOCTEXT(
+                "BlueprintConfigStructRegenerated",
+                "Successfully generated Native Struct for Configuration '{0}' and saved them at '{1}'"
+            ),
+            FText::FromString(Blueprint->GetName()),
+            FText::FromString(ResultHeaderFilename)
+        )
+    );
     return true;
 }
 
@@ -79,74 +98,97 @@ bool FNativeCodeGenerator::CanGenerateNativeConfiguration(UConfigGenerationConte
             OutFailureMessage = FString::Printf(TEXT("Generated Struct Name '%s' does not represent a valid C++ identifier. Make sure it contains only alphanumerical characters"), *StructName);
             return false;
         }
-        
+
         for (const TPair<FString, FConfigVariableDescriptor>& Pair : GeneratedStruct->GetVariables()) {
             const FConfigVariableDescriptor Descriptor = Pair.Value;
             const EConfigVariableType VariableType = Descriptor.GetVariableType();
 
             if (!IsValidCppIdentifierString(Pair.Key)) {
-                OutFailureMessage = FString::Printf(TEXT("Property '%s' inside of the generated struct named '%s' does not have a valid C++ identifier as it's name. "
-                    "Make sure it contains only alphanumerical characters"), *Pair.Key, *StructName);
+                OutFailureMessage = FString::Printf(
+                    TEXT(
+                        "Property '%s' inside of the generated struct named '%s' does not have a valid C++ identifier as it's name. "
+                        "Make sure it contains only alphanumerical characters"
+                    ),
+                    *Pair.Key,
+                    *StructName
+                );
                 return false;
             }
-            
+
             if (VariableType == EConfigVariableType::ECVT_CustomStruct) {
                 UScriptStruct* ScriptStruct = Descriptor.GetCustomStructType();
                 if (Cast<UUserDefinedStruct>(ScriptStruct) != NULL) {
-                    OutFailureMessage = FString::Printf(TEXT("User Defined Structure '%s' is referenced by the Config Generated Struct '%s'. "
-                        "User defined Structures cannot be referenced from C++ code, use native structs instead."),
-                        *ScriptStruct->GetName(), *StructName);
+                    OutFailureMessage = FString::Printf(
+                        TEXT(
+                            "User Defined Structure '%s' is referenced by the Config Generated Struct '%s'. "
+                            "User defined Structures cannot be referenced from C++ code, use native structs instead."
+                        ),
+                        *ScriptStruct->GetName(),
+                        *StructName
+                    );
                     return false;
                 }
             }
-            
+
             if (VariableType == EConfigVariableType::ECVT_Object) {
                 UClass* BaseObjectClass = Descriptor.GetBaseObjectClass();
                 if (BaseObjectClass != NULL && !BaseObjectClass->IsNative()) {
-                    OutFailureMessage = FString::Printf(TEXT("Blueprint Class '%s' is referenced by the Config Generated Struct '%s'. "
-                     "Blueprint classes cannot be referenced from C++ code, use native classes instead."),
-                     *BaseObjectClass->GetName(), *StructName);
+                    OutFailureMessage = FString::Printf(
+                        TEXT(
+                            "Blueprint Class '%s' is referenced by the Config Generated Struct '%s'. "
+                            "Blueprint classes cannot be referenced from C++ code, use native classes instead."
+                        ),
+                        *BaseObjectClass->GetName(),
+                        *StructName
+                    );
                     return false;
                 }
             }
-            
+
             if (VariableType == EConfigVariableType::ECVT_Class) {
                 UClass* BaseClassType = Descriptor.GetBaseClassType();
                 if (BaseClassType != NULL && !BaseClassType->IsNative()) {
-                    OutFailureMessage = FString::Printf(TEXT("Blueprint Class '%s' is referenced by the Config Generated Struct '%s'. "
-                       "Blueprint classes cannot be referenced from C++ code, use native classes instead."),
-                       *BaseClassType->GetName(), *StructName);
+                    OutFailureMessage = FString::Printf(
+                        TEXT(
+                            "Blueprint Class '%s' is referenced by the Config Generated Struct '%s'. "
+                            "Blueprint classes cannot be referenced from C++ code, use native classes instead."
+                        ),
+                        *BaseClassType->GetName(),
+                        *StructName
+                    );
                     return false;
                 }
             }
         }
     }
-    
+
     OutFailureMessage = TEXT("");
     return true;
 }
 
 void FNativeCodeGenerator::GenerateConfigurationCodeHeader(const FString& HeaderFileName, UBlueprint* SourceBlueprint, UConfigGenerationContext* Context, FOutputDevice& OutputDevice) {
-    //Populate referenced classes data required for generating includes
+    // Populate referenced classes data required for generating includes
     FReferencedClassesData ReferencedClasses;
     PopulateReferencedClasses(Context, ReferencedClasses);
-    
-    //Generate includes and pre-declarations first
+
+    // Generate includes and pre-declarations first
     GenerateIncludesAndPredeclarations(HeaderFileName, ReferencedClasses, OutputDevice);
 
-    //Sort structs in the level of their nesting
+    // Sort structs in the level of their nesting
     TArray<UConfigGeneratedStruct*> GeneratedStructs = Context->GetAllGeneratedStructs();
-    GeneratedStructs.StableSort([](const UConfigGeneratedStruct& First, const UConfigGeneratedStruct& Second){
-        const int32 NestedCountFirst = GetNestedLevelOfStruct(&First);
-        const int32 NestedCountSecond = GetNestedLevelOfStruct(&Second);
-        return NestedCountFirst > NestedCountSecond;
-    });
-    
-    //Generate each struct now
+    GeneratedStructs.StableSort(
+        [](const UConfigGeneratedStruct& First, const UConfigGeneratedStruct& Second) {
+            const int32 NestedCountFirst = GetNestedLevelOfStruct(&First);
+            const int32 NestedCountSecond = GetNestedLevelOfStruct(&Second);
+            return NestedCountFirst > NestedCountSecond;
+        }
+    );
+
+    // Generate each struct now
     for (UConfigGeneratedStruct* GeneratedStruct : GeneratedStructs) {
         GenerateConfigStruct(GeneratedStruct, SourceBlueprint, OutputDevice);
 
-        //Insert blank line after each struct for better formatting
+        // Insert blank line after each struct for better formatting
         OutputDevice.Log(TEXT(""));
     }
 }
@@ -156,41 +198,41 @@ void FNativeCodeGenerator::GenerateConfigStruct(UConfigGeneratedStruct* Struct, 
     const FString BaseStructName = FString::Printf(TEXT("%sStruct"), *BlueprintName);
     const bool bIsRootStruct = Struct->GetStructName() == BaseStructName;
 
-    //Append command listing source asset to the root struct header
+    // Append command listing source asset to the root struct header
     if (bIsRootStruct) {
         const FString BlueprintAssetPath = SourceBlueprint->GetOutermost()->GetName();
         OutputDevice.Logf(TEXT("/* Struct generated from Mod Configuration Asset '%s' */"), *BlueprintAssetPath);
     }
-    
-    //Open struct body, mark it as USTRUCT accessible in blueprints
+
+    // Open struct body, mark it as USTRUCT accessible in blueprints
     OutputDevice.Log(TEXT("USTRUCT(BlueprintType)"));
     OutputDevice.Logf(TEXT("struct F%s {"), *Struct->GetStructName());
     OutputDevice.Log(TEXT("    GENERATED_BODY()"));
     OutputDevice.Log(TEXT("public:"));
-    
+
     bool bIsFirstField = true;
-    
-    //Generate each variable now
+
+    // Generate each variable now
     for (const TPair<FString, FConfigVariableDescriptor>& Pair : Struct->GetVariables()) {
-        //Append empty line between properties unless it's a first property
+        // Append empty line between properties unless it's a first property
         if (!bIsFirstField) {
             OutputDevice.Log(TEXT(""));
         } else {
             bIsFirstField = false;
         }
-        
-        //Determine C++ type for passed descriptor
+
+        // Determine C++ type for passed descriptor
         const FString CppTypeForDescriptor = GenerateCppTypeForVariable(Pair.Value);
-        //Mark variable as BlueprintReadWrite for it to be accessible via BP limited reflection
+        // Mark variable as BlueprintReadWrite for it to be accessible via BP limited reflection
         OutputDevice.Logf(TEXT("    UPROPERTY(BlueprintReadWrite)"));
         OutputDevice.Logf(TEXT("    %s %s;"), *CppTypeForDescriptor, *Pair.Key);
     }
 
-    //Append method for retrieving configuration value if we're working with root struct
+    // Append method for retrieving configuration value if we're working with root struct
     if (bIsRootStruct && SourceBlueprint->GeneratedClass) {
         UModConfiguration* ModConfiguration = CastChecked<UModConfiguration>(SourceBlueprint->GeneratedClass.GetDefaultObject());
         const FConfigId& ConfigId = ModConfiguration->ConfigId;
-        
+
         OutputDevice.Log(TEXT(""));
         OutputDevice.Logf(TEXT("    /* Retrieves active configuration value and returns object of this struct containing it */"));
         OutputDevice.Logf(TEXT("    static F%s GetActiveConfig() {"), *Struct->GetStructName());
@@ -202,7 +244,7 @@ void FNativeCodeGenerator::GenerateConfigStruct(UConfigGeneratedStruct* Struct, 
         OutputDevice.Logf(TEXT("    }"));
     }
 
-    //Terminate struct body with closing bracket
+    // Terminate struct body with closing bracket
     OutputDevice.Log(TEXT("};"));
 }
 
@@ -255,8 +297,8 @@ FString FNativeCodeGenerator::GenerateCppTypeForVariable(const FConfigVariableDe
     if (VariableType == EConfigVariableType::ECVT_Class) {
         UClass* BaseClassType = Descriptor.GetBaseClassType();
         if (BaseClassType == NULL || BaseClassType == UClass::StaticClass()) {
-            //No lower limit is set or it is set to bare UClass, in which case we don't need TSubclassOf
-            //And can just use raw UClass object pointer
+            // No lower limit is set or it is set to bare UClass, in which case we don't need TSubclassOf
+            // And can just use raw UClass object pointer
             return TEXT("UClass*");
         }
         const FString ClassName = FString::Printf(TEXT("%s%s"), BaseClassType->GetPrefixCPP(), *BaseClassType->GetName());
@@ -267,7 +309,7 @@ FString FNativeCodeGenerator::GenerateCppTypeForVariable(const FConfigVariableDe
 }
 
 void FNativeCodeGenerator::GenerateIncludesAndPredeclarations(const FString& HeaderFileName, const FReferencedClassesData& ReferencedClasses, FOutputDevice& OutputDevice) {
-    //Include pragma once and all the includes referenced
+    // Include pragma once and all the includes referenced
     OutputDevice.Log(TEXT("#pragma once"));
     OutputDevice.Log(TEXT("#include \"CoreMinimal.h\""));
     if (ReferencedClasses.bUsedClassPropertyWithLimitedType) {
@@ -276,29 +318,29 @@ void FNativeCodeGenerator::GenerateIncludesAndPredeclarations(const FString& Hea
     TArray<FString> AllIncludePaths;
     for (UStruct* ReferencedClass : ReferencedClasses.ReferencedClasses) {
         FString IncludePath = GetIncludePathForClass(ReferencedClass);
-        //We can get duplicates since multiple objects can be defined in one header file
+        // We can get duplicates since multiple objects can be defined in one header file
         AllIncludePaths.AddUnique(IncludePath);
     }
     for (const FString& IncludePath : AllIncludePaths) {
         OutputDevice.Logf(TEXT("#include \"%s\""), *IncludePath);
     }
 
-    //Include ConfigManager and GEngine for retrieving it
+    // Include ConfigManager and GEngine for retrieving it
     OutputDevice.Log(TEXT("#include \"Configuration/ConfigManager.h\""));
     OutputDevice.Log(TEXT("#include \"Engine/Engine.h\""));
-    
-    //Generated include should always be the last include in the file
+
+    // Generated include should always be the last include in the file
     OutputDevice.Logf(TEXT("#include \"%s.generated.h\""), *HeaderFileName);
 
-    //Include an empty line between includes and pre-declarations
+    // Include an empty line between includes and pre-declarations
     OutputDevice.Log(TEXT(""));
 
-    //Include pre-declarations
+    // Include pre-declarations
     for (const FString& ConfigStruct : ReferencedClasses.ReferencedGeneratedStructs) {
         OutputDevice.Logf(TEXT("struct F%s;"), *ConfigStruct);
     }
 
-    //Include empty line after structs pre-declarations
+    // Include empty line after structs pre-declarations
     if (ReferencedClasses.ReferencedGeneratedStructs.Num() > 0) {
         OutputDevice.Log(TEXT(""));
     }
@@ -314,12 +356,12 @@ void FNativeCodeGenerator::PopulateReferencedClasses(UConfigGenerationContext* C
 }
 
 FString FNativeCodeGenerator::GetIncludePathForClass(UStruct* Class) {
-    //We cannot use "IncludePath" metadata attribute here because it's not added for UScriptStruct,
-    //and object we have as argument can be either UClass or UScriptStruct, or maybe even UEnum if we decide to
-    //support them at some point. However, "ModuleRelativePath" is present on all of these objects,
-    //and even on function and property objects. According to UHT source, only difference
-    //between these two is that include path has Public/Private/Classes prefixes stripped. We can
-    //mimic that behavior and get uniform include paths for all defined objects
+    // We cannot use "IncludePath" metadata attribute here because it's not added for UScriptStruct,
+    // and object we have as argument can be either UClass or UScriptStruct, or maybe even UEnum if we decide to
+    // support them at some point. However, "ModuleRelativePath" is present on all of these objects,
+    // and even on function and property objects. According to UHT source, only difference
+    // between these two is that include path has Public/Private/Classes prefixes stripped. We can
+    // mimic that behavior and get uniform include paths for all defined objects
 
     FString IncludePath = Class->GetMetaData(TEXT("ModuleRelativePath"));
     checkf(!IncludePath.IsEmpty(), TEXT("ModuleRelativePath metadata not found on object %s"), *Class->GetPathName());
@@ -328,7 +370,7 @@ FString FNativeCodeGenerator::GetIncludePathForClass(UStruct* Class) {
         IncludePath.RemoveAt(0);
     }
     // Does this module path start with a known include path location? If so, we can cut that part out of the include path
-    static const TCHAR PublicFolderName[]  = TEXT("Public/");
+    static const TCHAR PublicFolderName[] = TEXT("Public/");
     static const TCHAR PrivateFolderName[] = TEXT("Private/");
     static const TCHAR ClassesFolderName[] = TEXT("Classes/");
     if (IncludePath.StartsWith(PublicFolderName)) {
@@ -347,8 +389,7 @@ int FNativeCodeGenerator::GetNestedLevelOfStruct(const UConfigGeneratedStruct* S
     const FString& StructName = Struct->GetStructName();
     int32 NumUnderscores = 0;
     for (int32 i = 0; i < StructName.Len(); i++) {
-        if (StructName[i] == TEXT('_'))
-            NumUnderscores++;
+        if (StructName[i] == TEXT('_')) NumUnderscores++;
     }
     return NumUnderscores;
 }
@@ -356,28 +397,25 @@ int FNativeCodeGenerator::GetNestedLevelOfStruct(const UConfigGeneratedStruct* S
 void FNativeCodeGenerator::AddReferencedVariable(const FConfigVariableDescriptor& Descriptor, FReferencedClassesData& ReferencedClasses) {
     const EConfigVariableType VariableType = Descriptor.GetVariableType();
     if (VariableType == EConfigVariableType::ECVT_ConfigGeneratedStruct) {
-        //Config generated struct needs pre-declaration to be referenced
+        // Config generated struct needs pre-declaration to be referenced
         UConfigGeneratedStruct* GeneratedStruct = Descriptor.GetConfigGeneratedStruct();
         if (GeneratedStruct != NULL) {
             ReferencedClasses.ReferencedGeneratedStructs.Add(GeneratedStruct->GetStructName());
         }
-    }
-    else if (VariableType == EConfigVariableType::ECVT_CustomStruct) {
-        //Custom structure needs import too, unless it is BP struct, but we shouldn't encounter BP structs
+    } else if (VariableType == EConfigVariableType::ECVT_CustomStruct) {
+        // Custom structure needs import too, unless it is BP struct, but we shouldn't encounter BP structs
         UScriptStruct* ReferencedStruct = Descriptor.GetCustomStructType();
         if (ReferencedStruct != NULL) {
             checkf(Cast<UUserDefinedStruct>(ReferencedStruct) == NULL, TEXT("User defined structs are not supported"));
             ReferencedClasses.ReferencedClasses.Add(ReferencedStruct);
         }
-    }
-    else if (VariableType == EConfigVariableType::ECVT_Object) {
+    } else if (VariableType == EConfigVariableType::ECVT_Object) {
         UClass* BaseObjectClass = Descriptor.GetBaseObjectClass();
         if (BaseObjectClass != NULL) {
             checkf(BaseObjectClass->IsNative(), TEXT("Non-native classes are not supported"));
             ReferencedClasses.ReferencedClasses.Add(BaseObjectClass);
         }
-    }
-    else if (VariableType == EConfigVariableType::ECVT_Class) {
+    } else if (VariableType == EConfigVariableType::ECVT_Class) {
         UClass* BaseClassType = Descriptor.GetBaseClassType();
         if (BaseClassType != NULL) {
             checkf(BaseClassType->IsNative(), TEXT("Non-native classes are not supported"));
@@ -397,4 +435,3 @@ bool FNativeCodeGenerator::IsValidCppIdentifierString(const FString& Identifier)
     }
     return Identifier.Len() > 0;
 }
-

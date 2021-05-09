@@ -10,7 +10,7 @@ class SML_API UWorldModule : public UModModule {
 public:
     /** Allow world module manager to set mod reference */
     friend class UWorldModuleManager;
-    
+
     /** World modules have their world context from attached world */
     virtual UWorld* GetWorld() const override;
 };

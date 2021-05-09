@@ -7,7 +7,9 @@ FAlpakitCommands::FAlpakitCommands() : TCommands<FAlpakitCommands>(
     TEXT("Alpakit"),
     NSLOCTEXT("Contexts", "Alpakit", "Alpakit Plugin"),
     NAME_None,
-    FAlpakitStyle::GetStyleSetName()) {}
+    FAlpakitStyle::GetStyleSetName()
+) {
+}
 
 void FAlpakitCommands::RegisterCommands() {
     UI_COMMAND(OpenPluginWindow, "Alpakit", "Open the alpakit window", EUserInterfaceActionType::Button, FInputChord{});

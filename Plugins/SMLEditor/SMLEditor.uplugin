@@ -1,24 +1,24 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0.0",
-	"FriendlyName": "SML Editor",
-	"Description": "Satisfactory Mod Loader: Editor Module",
-	"Category": "Modding",
-	"CreatedBy": "SML Team",
-	"CreatedByURL": "https://github.com/satisfactorymodding/SatisfactoryModLoader",
-	"DocsURL": "https://docs.ficsit.app",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"IsExperimentalVersion": false,
-	"Installed": true,
-	"Modules": [
-		{
-			"Name": "SMLEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
-		}
-	]
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0.0",
+    "FriendlyName": "SML Editor",
+    "Description": "Satisfactory Mod Loader: Editor Module",
+    "Category": "Modding",
+    "CreatedBy": "SML Team",
+    "CreatedByURL": "https://github.com/satisfactorymodding/SatisfactoryModLoader",
+    "DocsURL": "https://docs.ficsit.app",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": false,
+    "IsExperimentalVersion": false,
+    "Installed": true,
+    "Modules": [
+        {
+            "Name": "SMLEditor",
+            "Type": "Editor",
+            "LoadingPhase": "Default"
+        }
+    ]
 }

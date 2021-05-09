@@ -5,6 +5,6 @@ extern "C" DLLEXPORT IModuleInterface* InitializeModule();
 
 class SML_API FSMLModule : public FDefaultGameModuleImpl {
 public:
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
 };

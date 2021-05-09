@@ -13,13 +13,13 @@ private:
 private:
     using FPropertySerializer = TFunction<TSharedRef<FJsonValue>(FProperty* Property, const void* Value)>;
     using FPropertyDeserializer = TFunction<void(FProperty* Property, TSharedRef<FJsonValue> Value, void* OutValue)>;
-    
+
     UPROPERTY()
     UObjectHierarchySerializer* ObjectHierarchySerializer;
 
     UPROPERTY()
     TArray<UStruct*> PinnedStructs;
-    
+
     TMap<FProperty*, FPropertySerializer> CustomPropertySerializers;
     TMap<FProperty*, FPropertyDeserializer> CustomPropertyDeserializers;
     TArray<FProperty*> BlacklistedProperties;
@@ -38,7 +38,7 @@ public:
 
     TSharedRef<FJsonValue> SerializePropertyValue(FProperty* Property, const void* Value);
     TSharedRef<FJsonObject> SerializeStruct(UScriptStruct* Struct, const void* Value);
-    
+
     void DeserializePropertyValue(FProperty* Property, const TSharedRef<FJsonValue>& Value, void* OutValue);
     void DeserializeStruct(UScriptStruct* Struct, const TSharedRef<FJsonObject>& Value, void* OutValue);
 private:

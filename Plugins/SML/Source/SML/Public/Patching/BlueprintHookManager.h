@@ -48,24 +48,26 @@ public:
 private:
     /** Actually performs bytecode modification to install hook */
     static void InstallBlueprintHook(UFunction* Function, int32 HookOffset);
-    
+
     /** Does preprocessing to hook offset to handle predefined hook locations */
     static int32 PreProcessHookOffset(UFunction* Function, int32 HookOffset);
-    
+
     /** Called when hook is executed */
     void HandleHookedFunctionCall(FFrame& Frame, int32 HookOffset);
 
     /** This function is just a stub for UHT to generate reflection data, it is not actually implemented. */
     UFUNCTION(BlueprintInternalUseOnly, CustomThunk)
-    static void ExecuteBPHook(int32 HookOffset) { check(0); };
+    static void ExecuteBPHook(int32 HookOffset) {
+        check(0);
+    };
 
     DECLARE_FUNCTION(execExecuteBPHook) {
-        //StepCompiledIn is not used here since this function cannot be called from BP directly, it can only
-        //be inserted into byte-code, so codegen support is not needed
+        // StepCompiledIn is not used here since this function cannot be called from BP directly, it can only
+        // be inserted into byte-code, so codegen support is not needed
         int32 HookOffset = 0;
         Stack.Step(Context, &HookOffset);
-        P_FINISH; //skip EX_EndFunctionParams
-        //Call hook function handler that will do some wrapping
+        P_FINISH; // skip EX_EndFunctionParams
+        // Call hook function handler that will do some wrapping
         UBlueprintHookManager* HookManager = GEngine->GetEngineSubsystem<UBlueprintHookManager>();
         HookManager->HandleHookedFunctionCall(Stack, HookOffset);
     }

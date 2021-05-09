@@ -14,7 +14,7 @@ public:
     virtual void ShutdownModule() override;
 private:
     TSharedPtr<class FUICommandList> PluginCommands;
-    
+
     void RegisterSettings() const;
     void UnregisterSettings() const;
 };

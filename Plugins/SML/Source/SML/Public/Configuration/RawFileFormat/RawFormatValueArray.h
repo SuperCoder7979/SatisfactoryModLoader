@@ -12,11 +12,10 @@ class SML_API URawFormatValueArray : public URawFormatValue {
 public:
     UFUNCTION(BlueprintPure)
     FORCEINLINE int32 Num() const { return Values.Num(); }
-    
+
     UFUNCTION(BlueprintPure)
     FORCEINLINE URawFormatValue* GetValue(int32 Index) const {
-        if (Index >= 0 && Index < Values.Num())
-            return Values[Index];
+        if (Index >= 0 && Index < Values.Num()) return Values[Index];
         return NULL;
     }
 
@@ -30,7 +29,7 @@ public:
     FORCEINLINE URawFormatValueArray* AddArray() {
         return AddNewValue<URawFormatValueArray>();
     }
-    
+
     /** Retrieves value at the given index as string, falling back to empty string if it's not a string */
     UFUNCTION(BlueprintPure)
     FORCEINLINE FString GetString(int32 Index) const {
@@ -60,7 +59,7 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void AddFloat(float Value);
-    
+
     /** Adds value into the array and returns pointer to it */
     UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ValueClass"))
     void AddValue(URawFormatValue* ValueClass);
@@ -104,7 +103,7 @@ FORCEINLINE void URawFormatValueArray::AddFloat(float Value) {
 }
 
 FORCEINLINE void URawFormatValueArray::AddValue(URawFormatValue* ValueClass) {
-    //Sanity check to ensure hierarchical view inside this raw value
+    // Sanity check to ensure hierarchical view inside this raw value
     checkf(ValueClass && ValueClass->GetOuter() == this, TEXT("Cannot add URawFormatValue residuing inside another outer object (should be URawFormatValueArray)"));
     Values.Add(ValueClass);
 }

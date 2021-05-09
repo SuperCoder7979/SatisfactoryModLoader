@@ -8,15 +8,15 @@
 
 void UUserDefinedStructAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UUserDefinedStruct)
-    FAssetHelper::SerializeScriptStruct(Data, Asset, ObjectSerializer);
+        FAssetHelper::SerializeScriptStruct(Data, Asset, ObjectSerializer);
 
-    //Serialize status (should be up to date outside editor)
-    Data->SetNumberField(TEXT("Status"), Asset->Status);
-    Data->SetStringField(TEXT("Guid"), Asset->GetCustomGuid().ToString());
+        // Serialize status (should be up to date outside editor)
+        Data->SetNumberField(TEXT("Status"), Asset->Status);
+        Data->SetStringField(TEXT("Guid"), Asset->GetCustomGuid().ToString());
 
-    //Serialize struct default values
-    const TSharedRef<FJsonObject> DefaultInstance = Serializer->SerializeStruct(Asset, Asset->GetDefaultInstance());
-    Data->SetObjectField(TEXT("StructDefaultInstance"), DefaultInstance);
+        // Serialize struct default values
+        const TSharedRef<FJsonObject> DefaultInstance = Serializer->SerializeStruct(Asset, Asset->GetDefaultInstance());
+        Data->SetObjectField(TEXT("StructDefaultInstance"), DefaultInstance);
     END_ASSET_SERIALIZATION
 }
 

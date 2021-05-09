@@ -2,21 +2,21 @@
 using System.IO;
 using System;
 
-public class SMLEditor : ModuleRules
-{
-    public SMLEditor(ReadOnlyTargetRules Target) : base(Target)
-    {
+public class SMLEditor : ModuleRules {
+    public SMLEditor(ReadOnlyTargetRules Target) : base(Target) {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new string[] {"SML", "FactoryGame", "UnrealEd", "BlueprintGraph"});
         bLegacyPublicIncludePaths = false;
-        
-        //SML transitive dependencies
-        PublicDependencyModuleNames.AddRange(new[] {
+
+        // SML transitive dependencies
+        PublicDependencyModuleNames.AddRange(new[]
+        {
             "Json"
         });
-        
-        //FactoryGame transitive dependencies
-        PublicDependencyModuleNames.AddRange(new[] {
+
+        // FactoryGame transitive dependencies
+        PublicDependencyModuleNames.AddRange(new[]
+        {
             "Core", "CoreUObject",
             "Engine",
             "InputCore",
@@ -26,7 +26,7 @@ public class SMLEditor : ModuleRules
             "BlueprintGraph",
             "KismetCompiler",
             "AnimGraphRuntime",
-            "AkAudio", 
+            "AkAudio",
             "PhysXVehicles",
             "AssetRegistry",
             "NavigationSystem",
@@ -37,8 +37,9 @@ public class SMLEditor : ModuleRules
             "InstancedSplines",
             "Projects"
         });
-        
-        PrivateDependencyModuleNames.AddRange(new[] {
+
+        PrivateDependencyModuleNames.AddRange(new[]
+        {
             "DesktopPlatform"
         });
     }

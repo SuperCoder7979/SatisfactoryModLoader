@@ -7,8 +7,8 @@
 
 void UCurveLinearColorAtlasAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UCurveLinearColorAtlas)
-    SERIALIZE_ASSET_OBJECT
-    UTextureAssetSerializer::SerializeTextureData(Asset->GetPathName(), Asset->PlatformData, Data, Context, false, TEXT(""));
+        SERIALIZE_ASSET_OBJECT
+        UTextureAssetSerializer::SerializeTextureData(Asset->GetPathName(), Asset->PlatformData, Data, Context, false, TEXT(""));
     END_ASSET_SERIALIZATION
 }
 

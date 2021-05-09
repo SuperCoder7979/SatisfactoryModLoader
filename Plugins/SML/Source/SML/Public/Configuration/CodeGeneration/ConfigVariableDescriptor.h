@@ -30,7 +30,7 @@ public:
     bool operator==(const FConfigVariableDescriptor& Other) const;
 
     bool operator!=(const FConfigVariableDescriptor& Other) const;
-    
+
     void SetupAsPrimitive(EConfigVariableType VariableType);
 
     void SetupAsArray(const FConfigVariableDescriptor& ElementType);
@@ -47,7 +47,7 @@ public:
 
     /** Type of the generated variable. Decides which of the settings below are applied */
     FORCEINLINE EConfigVariableType GetVariableType() const { return VariableType; }
-   
+
     /** Custom struct defined by this ECT_CustomStruct variable */
     UScriptStruct* GetCustomStructType() const;
 
@@ -71,14 +71,14 @@ public:
 
     /** Exposes references to GC system */
     void AddStructReferencedObjects(class FReferenceCollector& Collector) const;
-    
+
 private:
     EConfigVariableType VariableType;
     UScriptStruct* CustomStructType;
     UClass* BaseObjectClass;
     UClass* BaseClassType;
     class UConfigGeneratedStruct* ConfigGeneratedStructType;
-    TSharedPtr<FConfigVariableDescriptor> ArrayElementDescriptor;    
+    TSharedPtr<FConfigVariableDescriptor> ArrayElementDescriptor;
     TSharedPtr<FConfigVariableDescriptor> MapKeyDescriptor;
     TSharedPtr<FConfigVariableDescriptor> MapValueDescriptor;
 };

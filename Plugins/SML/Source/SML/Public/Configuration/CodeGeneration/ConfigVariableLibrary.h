@@ -19,7 +19,7 @@ public:
     /** Returns full path to the custom structure associated with this variable */
     UFUNCTION(BlueprintPure, Category = "ConfigVariables", meta = (BlueprintThreadSafe))
     static FORCEINLINE class UConfigGeneratedStruct* GetConfigGeneratedStruct(const FConfigVariableDescriptor& Descriptor) { return Descriptor.GetConfigGeneratedStruct(); }
-    
+
     /** Returns descriptor for array element type of this variable */
     UFUNCTION(BlueprintPure, Category = "ConfigVariables", meta = (BlueprintThreadSafe))
     static FORCEINLINE FConfigVariableDescriptor GetArrayElementType(const FConfigVariableDescriptor& Descriptor) { return Descriptor.GetArrayElementDescriptor(); }
@@ -35,7 +35,7 @@ public:
     /** Returns true if the values are equal (A == B) */
     UFUNCTION(BlueprintPure, meta=(DisplayName="Equal (ConfigVariableDescriptor)", CompactNodeTitle="==", BlueprintThreadSafe), Category = "ConfigVariables")
     static FORCEINLINE bool EqualEqual_FConfigVariableDescriptor(const FConfigVariableDescriptor& A, const FConfigVariableDescriptor& B) { return A == B; }
-	
+
     /** Returns true if the values are not equal (A != B) */
     UFUNCTION(BlueprintPure, meta=(DisplayName="NotEqual (ConfigVariableDescriptor)", CompactNodeTitle="!=", BlueprintThreadSafe), Category = "ConfigVariables")
     static FORCEINLINE bool NotEqual_FConfigVariableDescriptor(const FConfigVariableDescriptor& A, const FConfigVariableDescriptor& B) { return A != B; }

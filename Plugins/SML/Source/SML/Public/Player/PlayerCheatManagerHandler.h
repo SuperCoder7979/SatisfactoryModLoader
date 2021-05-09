@@ -8,7 +8,7 @@ public:
     static void HandlePlayerJoined(class AGameModeBase* GameMode, class APlayerController* PlayerController);
 private:
     friend class FSatisfactoryModLoader;
-    
+
     /** Registers cheat manager handler in game mode callbacks */
     static void RegisterHandler();
 };

@@ -29,7 +29,10 @@ void UConfigPropertyInteger::FillConfigStruct_Implementation(const FReflectedObj
     ReflectedObject.SetIntProperty(*VariableName, Value);
 }
 
-FConfigVariableDescriptor UConfigPropertyInteger::CreatePropertyDescriptor_Implementation(
-    UConfigGenerationContext* Context, const FString& OuterPath) const {
+FConfigVariableDescriptor UConfigPropertyInteger::CreatePropertyDescriptor_Implementation
+(
+    UConfigGenerationContext* Context,
+    const FString& OuterPath
+) const {
     return UConfigVariableLibrary::MakeConfigVariablePrimitive(EConfigVariableType::ECVT_Int32);
 }

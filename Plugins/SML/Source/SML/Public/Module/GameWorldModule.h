@@ -35,16 +35,16 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = Advanced)
     TSoftObjectPtr<class UDataTable> mResourceSinkItemPointsTable;
 
-	/** Mod subsystem actors to be registered automatically during construction phase */
-	UPROPERTY(EditDefaultsOnly, Category= Advanced)
-	TArray<TSubclassOf<class AModSubsystem>> ModSubsystems;
+    /** Mod subsystem actors to be registered automatically during construction phase */
+    UPROPERTY(EditDefaultsOnly, Category= Advanced)
+    TArray<TSubclassOf<class AModSubsystem>> ModSubsystems;
 
     /** Register content from properties here */
     virtual void DispatchLifecycleEvent(ELifecyclePhase Phase) override;
 protected:
-	/** Registers content at the construction phase */
-	void RegisterConstructionPhaseContent();
-	
+    /** Registers content at the construction phase */
+    void RegisterConstructionPhaseContent();
+
     /** Registers default content from properties specified above */
     void RegisterDefaultContent();
 };

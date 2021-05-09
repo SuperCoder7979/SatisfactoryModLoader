@@ -47,15 +47,15 @@ void UConfigPropertyClass::Deserialize_Implementation(const URawFormatValue* Raw
     const URawFormatValueString* StringValue = Cast<URawFormatValueString>(RawValue);
     if (StringValue != NULL) {
         if (StringValue->Value != TEXT("None")) {
-            //String indicates full class path name, so use LoadObject<UClass> to actually load it
-            //SetClassValue will take care of type checking provided class object
+            // String indicates full class path name, so use LoadObject<UClass> to actually load it
+            // SetClassValue will take care of type checking provided class object
             UClass* LoadedClassObject = LoadObject<UClass>(NULL, *StringValue->Value);
             if (LoadedClassObject != NULL) {
                 SetClassValue(LoadedClassObject);
             }
         } else {
-            //String is equal to None, and None is a special value indicating NULL class
-            //If we don't allow NULL value, IsClassValueValid will return false, and value will remain default
+            // String is equal to None, and None is a special value indicating NULL class
+            // If we don't allow NULL value, IsClassValueValid will return false, and value will remain default
             SetClassValue(NULL);
         }
     }
@@ -65,7 +65,10 @@ void UConfigPropertyClass::FillConfigStruct_Implementation(const FReflectedObjec
     ReflectedObject.SetObjectProperty(*VariableName, Value);
 }
 
-FConfigVariableDescriptor UConfigPropertyClass::CreatePropertyDescriptor_Implementation(
-    UConfigGenerationContext* Context, const FString& OuterPath) const {
+FConfigVariableDescriptor UConfigPropertyClass::CreatePropertyDescriptor_Implementation
+(
+    UConfigGenerationContext* Context,
+    const FString& OuterPath
+) const {
     return UConfigVariableLibrary::MakeConfigVariableClass(BaseClass);
 }

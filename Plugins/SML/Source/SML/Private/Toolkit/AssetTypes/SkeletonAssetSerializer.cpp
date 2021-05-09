@@ -11,52 +11,52 @@
 
 void USkeletonAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(USkeleton)
-    
-    //Serialize reference skeleton object
-    const TSharedPtr<FJsonObject> ReferenceSkeleton = MakeShareable(new FJsonObject());
-    USkeletalMeshAssetSerializer::SerializeReferenceSkeleton(Asset->GetReferenceSkeleton(), ReferenceSkeleton);
-    Data->SetObjectField(TEXT("ReferenceSkeleton"), ReferenceSkeleton);
-    
-    //Serialize Skeleton GUID, good idea to keep it consistent with cooked data
-    Data->SetStringField(TEXT("Guid"), Asset->GetGuid().ToString());
 
-    //Serialize animation retarget sources
-    SERIALIZE_STRUCT_MAP(AnimRetargetSources, Asset->AnimRetargetSources);
-    Data->SetArrayField(TEXT("AnimRetargetSources"), AnimRetargetSources);
+        // Serialize reference skeleton object
+        const TSharedPtr<FJsonObject> ReferenceSkeleton = MakeShareable(new FJsonObject());
+        USkeletalMeshAssetSerializer::SerializeReferenceSkeleton(Asset->GetReferenceSkeleton(), ReferenceSkeleton);
+        Data->SetObjectField(TEXT("ReferenceSkeleton"), ReferenceSkeleton);
 
-    //Serialize smart names container (in this ugly way because field is private)
-    Serializer->DisablePropertySerialization(USkeleton::StaticClass(), TEXT("SmartNames"));
-    FProperty* SmartNamesProperty = USkeleton::StaticClass()->FindPropertyByName(TEXT("SmartNames"));
-    
-    const TSharedPtr<FJsonObject> NameContainer = MakeShareable(new FJsonObject());
-    SerializeSmartNameContainer(*SmartNamesProperty->ContainerPtrToValuePtr<FSmartNameContainer>(Asset), NameContainer);
-    Data->SetObjectField(TEXT("SmartNames"), NameContainer);
+        // Serialize Skeleton GUID, good idea to keep it consistent with cooked data
+        Data->SetStringField(TEXT("Guid"), Asset->GetGuid().ToString());
 
-    //Serialize normal asset data
-    SERIALIZE_ASSET_OBJECT
+        // Serialize animation retarget sources
+        SERIALIZE_STRUCT_MAP(AnimRetargetSources, Asset->AnimRetargetSources);
+        Data->SetArrayField(TEXT("AnimRetargetSources"), AnimRetargetSources);
 
-    //Serialize skeleton itself into the fbx file
-    const FString OutFbxFilename = Context->GetDumpFilePath(TEXT(""), TEXT("fbx"));
-    FString OutErrorMessage;
-    const bool bSuccess = FFbxMeshExporter::ExportSkeletonIntoFbxFile(Asset, OutFbxFilename, false, &OutErrorMessage);
-    checkf(bSuccess, TEXT("Failed to export skeleton %s: %s"), *Asset->GetPathName(), *OutErrorMessage);
-    
+        // Serialize smart names container (in this ugly way because field is private)
+        Serializer->DisablePropertySerialization(USkeleton::StaticClass(), TEXT("SmartNames"));
+        FProperty* SmartNamesProperty = USkeleton::StaticClass()->FindPropertyByName(TEXT("SmartNames"));
+
+        const TSharedPtr<FJsonObject> NameContainer = MakeShareable(new FJsonObject());
+        SerializeSmartNameContainer(*SmartNamesProperty->ContainerPtrToValuePtr<FSmartNameContainer>(Asset), NameContainer);
+        Data->SetObjectField(TEXT("SmartNames"), NameContainer);
+
+        // Serialize normal asset data
+        SERIALIZE_ASSET_OBJECT
+
+        // Serialize skeleton itself into the fbx file
+        const FString OutFbxFilename = Context->GetDumpFilePath(TEXT(""), TEXT("fbx"));
+        FString OutErrorMessage;
+        const bool bSuccess = FFbxMeshExporter::ExportSkeletonIntoFbxFile(Asset, OutFbxFilename, false, &OutErrorMessage);
+        checkf(bSuccess, TEXT("Failed to export skeleton %s: %s"), *Asset->GetPathName(), *OutErrorMessage);
+
     END_ASSET_SERIALIZATION
 }
 
 void USkeletonAssetSerializer::SerializeSkeleton(USkeleton* Asset, TSharedPtr<FJsonObject> Data, TSharedRef<FSerializationContext> Context) {
     UPropertySerializer* Serializer = Context->GetPropertySerializer();
     UObjectHierarchySerializer* ObjectSerializer = Context->GetObjectSerializer();
-    
-    //Serialize reference skeleton object
+
+    // Serialize reference skeleton object
     const TSharedPtr<FJsonObject> ReferenceSkeleton = MakeShareable(new FJsonObject());
     USkeletalMeshAssetSerializer::SerializeReferenceSkeleton(Asset->GetReferenceSkeleton(), ReferenceSkeleton);
     Data->SetObjectField(TEXT("ReferenceSkeleton"), ReferenceSkeleton);
-    
-    //Serialize Skeleton GUID, good idea to keep it consistent with cooked data
+
+    // Serialize Skeleton GUID, good idea to keep it consistent with cooked data
     Data->SetStringField(TEXT("Guid"), Asset->GetGuid().ToString());
 
-    //Serialize animation retarget sources
+    // Serialize animation retarget sources
     SERIALIZE_STRUCT_MAP(AnimRetargetSources, Asset->AnimRetargetSources);
     Data->SetArrayField(TEXT("AnimRetargetSources"), AnimRetargetSources);
 
@@ -70,7 +70,7 @@ void USkeletonAssetSerializer::SerializeSkeleton(USkeleton* Asset, TSharedPtr<FJ
 
     SERIALIZE_ASSET_OBJECT
 
-    //Serialize skeleton itself into the fbx file
+    // Serialize skeleton itself into the fbx file
     const FString OutFbxFilename = Context->GetDumpFilePath(TEXT(""), TEXT("fbx"));
     FString OutErrorMessage;
     const bool bSuccess = FFbxMeshExporter::ExportSkeletonIntoFbxFile(Asset, OutFbxFilename, false, &OutErrorMessage);
@@ -78,37 +78,37 @@ void USkeletonAssetSerializer::SerializeSkeleton(USkeleton* Asset, TSharedPtr<FJ
 }
 
 void USkeletonAssetSerializer::SerializeSmartNameContainer(const FSmartNameContainer& Container, TSharedPtr<FJsonObject> OutObject) {
-    //Serialize smart name mappings
+    // Serialize smart name mappings
     TArray<TSharedPtr<FJsonValue>> NameMappings;
     for (FName SmartNameId : Container.GetMappingNames()) {
         const FSmartNameMapping* Mapping = Container.GetContainer(SmartNameId);
-        
+
         TSharedPtr<FJsonObject> NameMapping = MakeShareable(new FJsonObject());
         NameMapping->SetStringField(TEXT("Name"), SmartNameId.ToString());
-        
+
         TArray<FName> MetaDataKeys;
         Mapping->FillUIDToNameArray(MetaDataKeys);
 
         TArray<TSharedPtr<FJsonValue>> CurveMetaDataMap;
-        
+
         for (const FName& MetaDataKey : MetaDataKeys) {
             const TSharedPtr<FJsonObject> MetaDataObject = MakeShareable(new FJsonObject());
             const FCurveMetaData* MetaData = Mapping->GetCurveMetaData(MetaDataKey);
-            
+
             MetaDataObject->SetStringField(TEXT("MetaDataKey"), MetaDataKey.ToString());
             MetaDataObject->SetBoolField(TEXT("bMaterial"), MetaData->Type.bMaterial);
             MetaDataObject->SetBoolField(TEXT("bMorphtarget"), MetaData->Type.bMorphtarget);
             MetaDataObject->SetNumberField(TEXT("MaxLOD"), MetaData->MaxLOD);
-            
+
             TArray<TSharedPtr<FJsonValue>> LinkedBones;
             for (const FBoneReference& BoneReference : MetaData->LinkedBones) {
                 LinkedBones.Add(MakeShareable(new FJsonValueString(BoneReference.BoneName.ToString())));
             }
-            
+
             MetaDataObject->SetArrayField(TEXT("LinkedBones"), LinkedBones);
             CurveMetaDataMap.Add(MakeShareable(new FJsonValueObject(MetaDataObject)));
         }
-        
+
         NameMapping->SetArrayField(TEXT("CurveMetaDataMap"), CurveMetaDataMap);
         NameMappings.Add(MakeShareable(new FJsonValueObject(NameMapping)));
     }
@@ -120,5 +120,5 @@ FName USkeletonAssetSerializer::GetAssetClass() const {
 }
 
 bool USkeletonAssetSerializer::SupportsParallelDumping() const {
-	return false;
+    return false;
 }

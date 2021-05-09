@@ -11,10 +11,10 @@ class UCheatManager;
  */
 class SML_API FCheatManagerPatch {
 private:
-	friend class FSatisfactoryModLoader;
+    friend class FSatisfactoryModLoader;
 
-	static void HandlePlayerFly(UCheatManager* CheatManager, bool bFlyModeEnabled);
-	static void HandleNoClipModeOnFly(UCheatManager* CheatManager, bool bGhostMode);
-	
-	static void RegisterPatch();
+    static void HandlePlayerFly(UCheatManager* CheatManager, bool bFlyModeEnabled);
+    static void HandleNoClipModeOnFly(UCheatManager* CheatManager, bool bGhostMode);
+
+    static void RegisterPatch();
 };

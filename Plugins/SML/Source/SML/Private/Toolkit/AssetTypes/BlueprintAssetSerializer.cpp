@@ -9,15 +9,15 @@
 
 void UBlueprintAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION_BP(UBlueprintGeneratedClass)
-    SerializeBlueprintClass(Asset, Data, Context);
+        SerializeBlueprintClass(Asset, Data, Context);
     END_ASSET_SERIALIZATION
 }
 
 void UBlueprintAssetSerializer::SerializeBlueprintClass(UBlueprintGeneratedClass* Asset, TSharedPtr<FJsonObject> Data, TSharedRef<FSerializationContext> Context) {
     UPropertySerializer* Serializer = Context->GetPropertySerializer();
     UObjectHierarchySerializer* ObjectSerializer = Context->GetObjectSerializer();
-    
-    //Serialize parent UClass object first
+
+    // Serialize parent UClass object first
     FAssetHelper::SerializeClass(Data, Asset, ObjectSerializer);
 
     DISABLE_SERIALIZATION(USCS_Node, CookedComponentInstancingData);
@@ -29,7 +29,7 @@ void UBlueprintAssetSerializer::SerializeBlueprintClass(UBlueprintGeneratedClass
         Data->SetStringField(TEXT("UberGraphFramePointerProperty"), Asset->UberGraphFramePointerProperty->GetName());
     }
 
-    //Serialize class default object (to be fair, it will be serialized already at this point anyway)
+    // Serialize class default object (to be fair, it will be serialized already at this point anyway)
     const int32 ClassDefaultObjectIndex = ObjectSerializer->SerializeObject(Asset->GetDefaultObject());
     Data->SetNumberField(TEXT("ClassDefaultObject"), ClassDefaultObjectIndex);
 
@@ -37,5 +37,5 @@ void UBlueprintAssetSerializer::SerializeBlueprintClass(UBlueprintGeneratedClass
 }
 
 FName UBlueprintAssetSerializer::GetAssetClass() const {
-    return TEXT("Blueprint"); //UBlueprint::StaticClass()->GetFName()
+    return TEXT("Blueprint"); // UBlueprint::StaticClass()->GetFName()
 }

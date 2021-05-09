@@ -10,7 +10,7 @@
 
 void UBlendSpaceSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UBlendSpaceBase)
-    SERIALIZE_ASSET_OBJECT
+        SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION
 }
 

@@ -10,6 +10,6 @@ public:
 
     /** Serializes UBlueprintGeneratedClass instance */
     static void SerializeBlueprintClass(class UBlueprintGeneratedClass* Asset, TSharedPtr<class FJsonObject> Data, TSharedRef<FSerializationContext> Context);
-    
+
     virtual FName GetAssetClass() const override;
 };

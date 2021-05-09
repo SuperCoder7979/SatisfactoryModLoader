@@ -1,0 +1,20 @@
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_size = 4
+indent_style = space
+insert_final_newline = false
+# max_line_length = 140 
+tab_width = 4
+trim_trailing_whitespace = true
+
+# ReSharper properties
+resharper_anonymous_method_declaration_braces = end_of_line
+resharper_case_block_braces = end_of_line
+resharper_cpp_wrap_lines = false
+resharper_invocable_declaration_braces = end_of_line
+resharper_linkage_specification_braces = end_of_line
+resharper_namespace_declaration_braces = end_of_line
+resharper_other_braces = end_of_line
+resharper_requires_expression_braces = end_of_line
+resharper_type_declaration_braces = end_of_line

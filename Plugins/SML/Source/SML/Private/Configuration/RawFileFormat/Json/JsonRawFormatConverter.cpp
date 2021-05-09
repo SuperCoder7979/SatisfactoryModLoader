@@ -35,40 +35,40 @@ TSharedPtr<FJsonValue> FJsonRawFormatConverter::ConvertToJson(const URawFormatVa
 
 URawFormatValue* FJsonRawFormatConverter::ConvertToRawFormat(UObject* Outer, const TSharedPtr<FJsonValue>& JsonValue) {
     switch (JsonValue->Type) {
-        case EJson::Number: {
-                URawFormatValueNumber* Number = NewObject<URawFormatValueNumber>(Outer);
-                Number->Value = JsonValue->AsNumber();
-                return Number;
-            }
-        case EJson::String: {
-                URawFormatValueString* String = NewObject<URawFormatValueString>(Outer);
-                String->Value = JsonValue->AsString();
-                return String;
-            }
-        case EJson::Boolean: {
-                URawFormatValueBool* Boolean = NewObject<URawFormatValueBool>(Outer);
-                Boolean->Value = JsonValue->AsBool();
-                return Boolean;
-            }
-        case EJson::Array: {
-                URawFormatValueArray* Array = NewObject<URawFormatValueArray>(Outer);
-                for (const TSharedPtr<FJsonValue>& ChildValue : JsonValue->AsArray()) {
-                    Array->AddValue(ConvertToRawFormat(Array, ChildValue));
-                }
-                return Array;
-            }
-        case EJson::Object: {
-                URawFormatValueObject* Object = NewObject<URawFormatValueObject>(Outer);
-                for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : JsonValue->AsObject()->Values) {
-                    Object->AddValue(Pair.Key, ConvertToRawFormat(Object, Pair.Value));
-                }
-                return Object;
-            }
-        case EJson::Null:
-            checkf(false, TEXT("JSON Null value is not supported"));
-            return NULL;
-        default:
-            checkf(false, TEXT("Unreachable code"));
-            return NULL;
+    case EJson::Number: {
+        URawFormatValueNumber* Number = NewObject<URawFormatValueNumber>(Outer);
+        Number->Value = JsonValue->AsNumber();
+        return Number;
+    }
+    case EJson::String: {
+        URawFormatValueString* String = NewObject<URawFormatValueString>(Outer);
+        String->Value = JsonValue->AsString();
+        return String;
+    }
+    case EJson::Boolean: {
+        URawFormatValueBool* Boolean = NewObject<URawFormatValueBool>(Outer);
+        Boolean->Value = JsonValue->AsBool();
+        return Boolean;
+    }
+    case EJson::Array: {
+        URawFormatValueArray* Array = NewObject<URawFormatValueArray>(Outer);
+        for (const TSharedPtr<FJsonValue>& ChildValue : JsonValue->AsArray()) {
+            Array->AddValue(ConvertToRawFormat(Array, ChildValue));
+        }
+        return Array;
+    }
+    case EJson::Object: {
+        URawFormatValueObject* Object = NewObject<URawFormatValueObject>(Outer);
+        for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : JsonValue->AsObject()->Values) {
+            Object->AddValue(Pair.Key, ConvertToRawFormat(Object, Pair.Value));
+        }
+        return Object;
+    }
+    case EJson::Null:
+    checkf(false, TEXT("JSON Null value is not supported"));
+        return NULL;
+    default:
+    checkf(false, TEXT("Unreachable code"));
+        return NULL;
     }
 }

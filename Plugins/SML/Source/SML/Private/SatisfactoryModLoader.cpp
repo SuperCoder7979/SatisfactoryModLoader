@@ -48,24 +48,24 @@ void FSatisfactoryModLoader::LoadSMLConfiguration(bool bAllowSave) {
     const FString ConfigLocation = UConfigManager::GetConfigurationFilePath(FConfigId{TEXT("SML")});
     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
     bool bShouldWriteConfiguration = false;
-    
+
     if (PlatformFile.FileExists(*ConfigLocation)) {
         FString RawSMLConfiguration;
         if (FFileHelper::LoadFileToString(RawSMLConfiguration, *ConfigLocation)) {
-            
+
             TSharedPtr<FJsonObject> OutJsonObject;
             const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(RawSMLConfiguration);
-            
+
             if (FJsonSerializer::Deserialize(JsonReader, OutJsonObject)) {
                 FSMLConfiguration::ReadFromJson(OutJsonObject, SMLConfigurationPrivate, &bShouldWriteConfiguration);
                 UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Successfully loaded SML configuration from disk"));
-                
+
             } else {
                 UE_LOG(LogSatisfactoryModLoader, Warning, TEXT("Failed to load SML configuration, JSON is malformed"));
                 bShouldWriteConfiguration = true;
             }
         } else {
-            UE_LOG(LogSatisfactoryModLoader, Error, TEXT("Failed to load SML configuration from %s"), *ConfigLocation);   
+            UE_LOG(LogSatisfactoryModLoader, Error, TEXT("Failed to load SML configuration from %s"), *ConfigLocation);
         }
     } else {
         UE_LOG(LogSatisfactoryModLoader, Display, TEXT("SML configuration file is missing, saving new one"));
@@ -80,10 +80,10 @@ void FSatisfactoryModLoader::LoadSMLConfiguration(bool bAllowSave) {
         const TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&OutSerializedConfiguration);
         FJsonSerializer::Serialize(JsonObject, JsonWriter);
 
-        //Make sure configuration directory exists
+        // Make sure configuration directory exists
         FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*FPaths::GetPath(ConfigLocation));
 
-        //Write file onto the disk now
+        // Write file onto the disk now
         if (FFileHelper::SaveStringToFile(OutSerializedConfiguration, *ConfigLocation)) {
             UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Successfully saved SML configuration"));
         } else {
@@ -94,8 +94,8 @@ void FSatisfactoryModLoader::LoadSMLConfiguration(bool bAllowSave) {
 
 void FSatisfactoryModLoader::CheckGameVersion() {
     const uint32 CurrentChangelist = FEngineVersion::Current().GetChangelist();
-    const uint32 MinChangelistSupported = (uint32) targetGameVersion;
-    
+    const uint32 MinChangelistSupported = (uint32)targetGameVersion;
+
     if (!(CurrentChangelist >= MinChangelistSupported)) {
         UE_LOG(LogSatisfactoryModLoader, Fatal, TEXT("Game version check failed: Game version is %d, but this SML version is built for %d"), CurrentChangelist, MinChangelistSupported);
     }
@@ -103,49 +103,49 @@ void FSatisfactoryModLoader::CheckGameVersion() {
 }
 
 void FSatisfactoryModLoader::RegisterSubsystemPatches() {
-    //Disable vanilla content resolution by patching vanilla lookup methods
+    // Disable vanilla content resolution by patching vanilla lookup methods
     AModContentRegistry::DisableVanillaContentRegistration();
 
-    //Register remote call object registry hook
+    // Register remote call object registry hook
     URemoteCallObjectRegistry::InitializePatches();
-    
-    //Register SML chat commands subsystem patch (should actually be in CommandSubsystem i guess)
+
+    // Register SML chat commands subsystem patch (should actually be in CommandSubsystem i guess)
     USMLRemoteCallObject::RegisterChatCommandPatch();
 
-    //Initialize network manager handling mod packets
+    // Initialize network manager handling mod packets
     UModNetworkHandler::InitializePatches();
 
-    //Initialize tooltip handler
+    // Initialize tooltip handler
     UItemTooltipSubsystem::InitializePatches();
 
-    //Register offline player handler, providing ability to fallback to offline username and net id
+    // Register offline player handler, providing ability to fallback to offline username and net id
     FOfflinePlayerHandler::RegisterHandlerPatches();
 
-    //Register main menu additions, like mod list and labels
+    // Register main menu additions, like mod list and labels
     FMainMenuPatch::RegisterPatch();
 
-    //Register options menu key bindings patch, providing better keybind categorization
+    // Register options menu key bindings patch, providing better keybind categorization
     FOptionsKeybindPatch::RegisterPatch();
 
-    //Only register these patches in shipping, where bodies of the ACharacter::Cheat methods are stripped
+    // Only register these patches in shipping, where bodies of the ACharacter::Cheat methods are stripped
 #if UE_BUILD_SHIPPING
     FCheatManagerPatch::RegisterPatch();
 #endif
 }
 
 void FSatisfactoryModLoader::RegisterSubsystems() {
-    //Register cheat manager handling, allowing access to cheat commands if desired
+    // Register cheat manager handling, allowing access to cheat commands if desired
     FPlayerCheatManagerHandler::RegisterHandler();
 
-    //Register version checker for remote connections
+    // Register version checker for remote connections
     FSMLNetworkManager::RegisterMessageTypeAndHandlers();
 
-    //Initialize asset dumping and asset related stuff in cooked builds only
+    // Initialize asset dumping and asset related stuff in cooked builds only
     if (FPlatformProperties::RequiresCookedData()) {
-        //Make sure asset helper is set up correctly as it is needed for asset dumping
+        // Make sure asset helper is set up correctly as it is needed for asset dumping
         FAssetHelper::RunStaticTests();
 
-        //Register asset dumping related console commands
+        // Register asset dumping related console commands
         FGameNativeClassDumper::RegisterConsoleCommands();
     }
 }
@@ -154,29 +154,29 @@ void FSatisfactoryModLoader::PreInitializeModLoading() {
     UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Satisfactory Mod Loader v.%s pre-initializing..."), modLoaderVersionString);
     UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Build Date: %s %s"), ANSI_TO_TCHAR(__DATE__), ANSI_TO_TCHAR(__TIME__));
 
-    //Don't try to save configuration in the editor, because it will make new folders for no real reason
+    // Don't try to save configuration in the editor, because it will make new folders for no real reason
     const bool bAllowSavingConfiguration = !WITH_EDITOR;
     LoadSMLConfiguration(bAllowSavingConfiguration);
 
-    //Check game version only on shipping platform, because in editor builds
-    //changelist number is not actually correctly set, since it is built from scratch
+    // Check game version only on shipping platform, because in editor builds
+    // changelist number is not actually correctly set, since it is built from scratch
     if (FPlatformProperties::RequiresCookedData()) {
         CheckGameVersion();
     }
 
-    //Register these patches early so no materials/meshes loaded will skip them
-    //They will slow down game performance because of hooking in hot spots + extra memory consumption on CPU
-    //Same goes with UStaticMesh patch, it will increase memory usage on CPU and decrease loading speed
-    //We also do not need them in editor because asset dumping is cooked data-only
+    // Register these patches early so no materials/meshes loaded will skip them
+    // They will slow down game performance because of hooking in hot spots + extra memory consumption on CPU
+    // Same goes with UStaticMesh patch, it will increase memory usage on CPU and decrease loading speed
+    // We also do not need them in editor because asset dumping is cooked data-only
     if (FPlatformProperties::RequiresCookedData()) {
         if (SMLConfigurationPrivate.bDevelopmentMode) {
-            //UMaterialAssetSerializer::RegisterShaderInitRHIHook();
+            // UMaterialAssetSerializer::RegisterShaderInitRHIHook();
             FFbxMeshExporter::RegisterStaticMeshCPUAccessHook();
         }
     }
 
-    //Show console if we have been asked to in configuration
-    //Console can also be shown using -LOG command line switch
+    // Show console if we have been asked to in configuration
+    // Console can also be shown using -LOG command line switch
     if (GetSMLConfiguration().bConsoleWindow) {
         GLogConsole->Show(true);
     }
@@ -187,14 +187,14 @@ void FSatisfactoryModLoader::PreInitializeModLoading() {
 void FSatisfactoryModLoader::InitializeModLoading() {
     UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Performing mod loader initialization"));
 
-    //Install patches, but only do it in shipping for now because most of them involve FactoryGame code and
-    //we currently do not have FG code available in the editor
+    // Install patches, but only do it in shipping for now because most of them involve FactoryGame code and
+    // we currently do not have FG code available in the editor
     if (FPlatformProperties::RequiresCookedData()) {
         UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Registering subsystem patches..."));
         RegisterSubsystemPatches();
     }
-    
-    //Setup SML subsystems and custom content registries
+
+    // Setup SML subsystems and custom content registries
     UE_LOG(LogSatisfactoryModLoader, Display, TEXT("Registering global subsystems..."));
     RegisterSubsystems();
 

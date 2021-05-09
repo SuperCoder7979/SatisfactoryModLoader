@@ -1,10 +1,14 @@
 ﻿#include "Configuration/CodeGeneration/ConfigVariableLibrary.h"
 
 FConfigVariableDescriptor UConfigVariableLibrary::MakeConfigVariablePrimitive(EConfigVariableType VariableType) {
-    checkf(VariableType == EConfigVariableType::ECVT_Int32 ||
+    checkf(
+        VariableType == EConfigVariableType::ECVT_Int32 ||
         VariableType == EConfigVariableType::ECVT_Float ||
         VariableType == EConfigVariableType::ECVT_String ||
-        VariableType == EConfigVariableType::ECVT_Bool, TEXT("MakeConfigVariablePrimitive: non-primitive (string, int32, float) variable type passed: %d"), VariableType);
+        VariableType == EConfigVariableType::ECVT_Bool,
+        TEXT("MakeConfigVariablePrimitive: non-primitive (string, int32, float) variable type passed: %d"),
+        VariableType
+    );
     FConfigVariableDescriptor VariableDescriptor{};
     VariableDescriptor.SetupAsPrimitive(VariableType);
     return VariableDescriptor;

@@ -5,8 +5,9 @@
 /** Describes an identifier for a single configuration tree */
 USTRUCT(BlueprintType)
 struct SML_API FConfigId {
-    GENERATED_BODY();
-public:    
+    GENERATED_BODY()
+    ;
+public:
     /** Mod reference of the requested configuration owner */
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     FString ModReference;
@@ -33,11 +34,11 @@ public:
     /** Id for configuration described by this class */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FConfigId ConfigId;
-    
+
     /** Display name of this configuration, as it will be visible to user */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString DisplayName;
-    
+
     /** Description of this configuration, can be empty */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString Description;
@@ -46,9 +47,9 @@ public:
     UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
     UConfigPropertySection* RootSection;
 
-	/** Custom Widget - placed at the Bottom of the Mod Config Widgets*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		TSubclassOf<UUserWidget> CustomWidget;
+    /** Custom Widget - placed at the Bottom of the Mod Config Widgets*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TSubclassOf<UUserWidget> CustomWidget;
 
 #if WITH_EDITOR
     virtual EDataValidationResult IsDataValid(TArray<FText>& ValidationErrors) override;

@@ -13,15 +13,15 @@ public:
 
     /** Retrieves number value as floating point */
     UFUNCTION(BlueprintPure)
-    FORCEINLINE float AsFloat() const { return (float) Value; };
+    FORCEINLINE float AsFloat() const { return (float)Value; };
 
     /** Updates raw value to specified floating point value */
     UFUNCTION(BlueprintCallable)
     void SetValueFloat(float NewValue);
-    
+
     /** Retrieves number value as 32-bit signed integer */
     UFUNCTION(BlueprintPure)
-    FORCEINLINE int32 AsInt() const { return (int32) Value; }
+    FORCEINLINE int32 AsInt() const { return (int32)Value; }
 
     /** Updates raw value to specified 32-bit signed integer */
     UFUNCTION(BlueprintCallable)

@@ -17,7 +17,7 @@ private:
     TArray<UGameInstanceModule*> RootModuleList;
 public:
     UGameInstanceModuleManager();
-    
+
     /** Retrieves root game instance module by provided mod reference */
     UFUNCTION(BlueprintPure)
     UGameInstanceModule* FindModule(const FName& ModReference) const;
@@ -42,7 +42,7 @@ private:
     FSubsystemCollectionBase* CurrentSubsystemCollection;
 
     void EnsureSMLSubsystemsInitialized();
-    
+
     /** Allocates root module object for instance and registers it */
     void CreateRootModule(const FName& ModReference, TSubclassOf<UGameInstanceModule> ObjectClass);
 

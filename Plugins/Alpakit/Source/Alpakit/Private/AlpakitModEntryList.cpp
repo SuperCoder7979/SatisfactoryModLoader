@@ -13,7 +13,7 @@ void SAlpakitModEntryList::Construct(const FArguments& Args) {
             + SHorizontalBox::Slot().AutoWidth()[
                 SNew(SButton)
                 .Text(LOCTEXT("PackageModAlpakitAll", "Alpakit All!"))
-                .OnClicked(this,& SAlpakitModEntryList::PackageAllMods)
+                .OnClicked(this, &SAlpakitModEntryList::PackageAllMods)
             ]
         ]
         + SVerticalBox::Slot().AutoHeight()[
@@ -21,22 +21,23 @@ void SAlpakitModEntryList::Construct(const FArguments& Args) {
             .SelectionMode(ESelectionMode::None)
             .ListItemsSource(&FilteredMods)
             .OnGenerateRow_Lambda(
-               [this](TSharedRef<IPlugin> Mod, const TSharedRef<STableViewBase>& List) {
-                   return SNew(STableRow<TSharedRef<IPlugin>>, List)[
-                       SNew(SAlpakitModEntry, Mod, SharedThis(this))
-                   ];
-               })
+                                                                   [this](TSharedRef<IPlugin> Mod, const TSharedRef<STableViewBase>& List) {
+                                                                       return SNew(STableRow<TSharedRef<IPlugin>>, List)[
+                                                                           SNew(SAlpakitModEntry, Mod, SharedThis(this))
+                                                                       ];
+                                                                   }
+                                                               )
         ]];
 
     LoadMods();
 }
 
 bool DoesPluginHaveRuntime(const IPlugin& Plugin) {
-    //Content plugins always have runtime component
+    // Content plugins always have runtime component
     if (Plugin.GetDescriptor().bCanContainContent) {
         return true;
     }
-    //C++ plugins have runtime component as long as one of their modules does
+    // C++ plugins have runtime component as long as one of their modules does
     for (const FModuleDescriptor& Module : Plugin.GetDescriptor().Modules) {
         if (Module.Type == EHostType::Runtime ||
             Module.Type == EHostType::RuntimeNoCommandlet ||
@@ -55,12 +56,12 @@ void SAlpakitModEntryList::LoadMods() {
     Mods.Empty();
     const TArray<TSharedRef<IPlugin>> EnabledPlugins = IPluginManager::Get().GetEnabledPlugins();
     for (TSharedRef<IPlugin> Plugin : EnabledPlugins) {
-        //Skip WWise, it is already shipped with the game
+        // Skip WWise, it is already shipped with the game
         if (Plugin->GetName() == TEXT("WWise")) {
             continue;
         }
-        //Only include project plugins for now
-        //TODO make sure UAT task supports engine plugins
+        // Only include project plugins for now
+        // TODO make sure UAT task supports engine plugins
         if ((bShowEngine && Plugin->GetType() == EPluginType::Engine) || Plugin->GetType() == EPluginType::Project) {
             const bool bHasRuntime = DoesPluginHaveRuntime(Plugin.Get());
             if (bHasRuntime) {
@@ -68,9 +69,11 @@ void SAlpakitModEntryList::LoadMods() {
             }
         }
     }
-    Mods.Sort([](const TSharedRef<IPlugin> Plugin1, const TSharedRef<IPlugin> Plugin2) {
-        return Plugin1->GetName() < Plugin2->GetName();
-    });
+    Mods.Sort(
+        [](const TSharedRef<IPlugin> Plugin1, const TSharedRef<IPlugin> Plugin2) {
+            return Plugin1->GetName() < Plugin2->GetName();
+        }
+    );
     Filter(LastFilter);
 }
 
@@ -142,7 +145,7 @@ FReply SAlpakitModEntryList::PackageAllMods() {
             continue;
         }
 
-        if(!ModEntry->IsSelected()) {
+        if (!ModEntry->IsSelected()) {
             UE_LOG(LogAlpakit, Display, TEXT("Plugin is not selected: %s"), * Mod->GetName());
             continue;
         }

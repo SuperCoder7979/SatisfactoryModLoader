@@ -25,37 +25,41 @@ void SAlpakitModEntry::Construct(const FArguments& Args, TSharedRef<IPlugin> InM
         + SHorizontalBox::Slot().AutoWidth().Padding(0, 0, 5, 0)[
             SNew(SButton)
             .Text(LOCTEXT("PackageModAlpakit", "Alpakit!"))
-            .OnClicked_Lambda([this](){
-                PackageMod(TArray<TSharedPtr<SAlpakitModEntry>>());
-                return FReply::Handled();
-            })
-            .ToolTipText_Lambda([this](){
-                return FText::FromString(FString::Printf(TEXT("Alpakit %s"), *this->Mod->GetName()));
-            })
+            .OnClicked_Lambda(
+                             [this]() {
+                                 PackageMod(TArray<TSharedPtr<SAlpakitModEntry>>());
+                                 return FReply::Handled();
+                             }
+                         )
+            .ToolTipText_Lambda(
+                             [this]() {
+                                 return FText::FromString(FString::Printf(TEXT("Alpakit %s"), *this->Mod->GetName()));
+                             }
+                         )
         ]
         + SHorizontalBox::Slot().FillWidth(1)[
             SNew(STextBlock)
-            .Text_Lambda([InMod]() {
-                const FString DisplayText = FString::Printf(TEXT("%s (%s)"), *InMod->GetDescriptor().FriendlyName, *InMod->GetName());
-                return FText::FromString(DisplayText);
-            })
-            .HighlightText_Lambda([InOwner]() {
-                return FText::FromString(InOwner->GetLastFilter());
-            })
+            .Text_Lambda(
+                                [InMod]() {
+                                    const FString DisplayText = FString::Printf(TEXT("%s (%s)"), *InMod->GetDescriptor().FriendlyName, *InMod->GetName());
+                                    return FText::FromString(DisplayText);
+                                }
+                            )
+            .HighlightText_Lambda(
+                                [InOwner]() {
+                                    return FText::FromString(InOwner->GetLastFilter());
+                                }
+                            )
         ]
     ];
 }
 
 FString GetArgumentForLaunchType(EAlpakitStartGameType LaunchMode) {
     switch (LaunchMode) {
-    case EAlpakitStartGameType::STEAM:
-        return TEXT("-Steam");
-    case EAlpakitStartGameType::EPIC_EARLY_ACCESS:
-        return TEXT("-EpicEA");
-    case EAlpakitStartGameType::EPIC_EXPERIMENTAL:
-        return TEXT("-EpicExp");
-    default:
-        return TEXT("");
+    case EAlpakitStartGameType::STEAM: return TEXT("-Steam");
+    case EAlpakitStartGameType::EPIC_EARLY_ACCESS: return TEXT("-EpicEA");
+    case EAlpakitStartGameType::EPIC_EXPERIMENTAL: return TEXT("-EpicExp");
+    default: return TEXT("");
     }
 }
 
@@ -77,8 +81,8 @@ void SAlpakitModEntry::PackageMod(const TArray<TSharedPtr<SAlpakitModEntry>>& Ne
     const FString GamePath = Settings->SatisfactoryGamePath.Path;
 
     const FString ProjectPath = FPaths::IsProjectFilePathSet()
-        ? FPaths::ConvertRelativePathToFull(FPaths::GetProjectFilePath())
-        : FPaths::RootDir() / FApp::GetProjectName() / FApp::GetProjectName() + TEXT(".uproject");
+                                    ? FPaths::ConvertRelativePathToFull(FPaths::GetProjectFilePath())
+                                    : FPaths::RootDir() / FApp::GetProjectName() / FApp::GetProjectName() + TEXT(".uproject");
 
     FString AdditionalUATArguments;
     if (Settings->bCopyModsToGame) {
@@ -93,8 +97,14 @@ void SAlpakitModEntry::PackageMod(const TArray<TSharedPtr<SAlpakitModEntry>>& Ne
 
     UE_LOG(LogAlpakit, Display, TEXT("Packaging plugin \"%s\". %d remaining"), *PluginName, NextEntries.Num());
 
-    const FString CommandLine = FString::Printf(TEXT("-ScriptsForProject=\"%s\" PackagePlugin -Project=\"%s\" -PluginName=\"%s\" -GameDir=\"%s\" %s"),
-                                                *ProjectPath, *ProjectPath, *PluginName, *Settings->SatisfactoryGamePath.Path, *AdditionalUATArguments);
+    const FString CommandLine = FString::Printf(
+        TEXT("-ScriptsForProject=\"%s\" PackagePlugin -Project=\"%s\" -PluginName=\"%s\" -GameDir=\"%s\" %s"),
+        *ProjectPath,
+        *ProjectPath,
+        *PluginName,
+        *Settings->SatisfactoryGamePath.Path,
+        *AdditionalUATArguments
+    );
 
     const FText PlatformName = GetCurrentPlatformName();
     IUATHelperModule::Get().CreateUatTask(
@@ -103,17 +113,24 @@ void SAlpakitModEntry::PackageMod(const TArray<TSharedPtr<SAlpakitModEntry>>& Ne
         LOCTEXT("PackageModTaskName", "Packaging Mod"),
         LOCTEXT("PackageModTaskShortName", "Package Mod Task"),
         FAlpakitStyle::Get().GetBrush("Alpakit.OpenPluginWindow"),
-        NextEntries.Num() == 0 ? (IUATHelperModule::UatTaskResultCallack)nullptr : [NextEntries](FString resultType, double runTime) {
-            AsyncTask(ENamedThreads::GameThread, [NextEntries]() {
-                TSharedPtr<SAlpakitModEntry> NextMod = NextEntries[0];
+        NextEntries.Num() == 0
+            ? (IUATHelperModule::UatTaskResultCallack)nullptr
+            : [NextEntries](FString resultType, double runTime) {
+                AsyncTask(
+                    ENamedThreads::GameThread,
+                    [NextEntries]() {
+                        TSharedPtr<SAlpakitModEntry> NextMod = NextEntries[0];
 
-                TArray<TSharedPtr<SAlpakitModEntry>> RemainingEntries = NextEntries.FilterByPredicate([NextMod](const TSharedPtr<SAlpakitModEntry>& X) {
-                    return X != NextMod;
-                });
+                        TArray<TSharedPtr<SAlpakitModEntry>> RemainingEntries = NextEntries.FilterByPredicate(
+                            [NextMod](const TSharedPtr<SAlpakitModEntry>& X) {
+                                return X != NextMod;
+                            }
+                        );
 
-                NextMod->PackageMod(RemainingEntries);
-            });
-        }
+                        NextMod->PackageMod(RemainingEntries);
+                    }
+                );
+            }
     );
 }
 

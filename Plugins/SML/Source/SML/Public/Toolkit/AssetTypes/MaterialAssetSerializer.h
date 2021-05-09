@@ -9,7 +9,7 @@ public:
     /*static void RegisterShaderInitRHIHook();*/
     virtual void SerializeAsset(TSharedRef<FSerializationContext> Context) const override;
 
-    //TODO uncomment once we rework material serialization for UE4.25
+    // TODO uncomment once we rework material serialization for UE4.25
     /*static void SerializeMaterialResource(class FMaterialResource* MaterialResource, TSharedPtr<FJsonObject> OutObject, UObjectHierarchySerializer* ObjectHierarchySerializer, FAssetSerializationContext& Context);
     static void SerializeShader(class FShader* Shader, TSharedPtr<FJsonObject> OutJson, FAssetSerializationContext& AssetSerializationContext, const FString& ShaderNamePrefix);
     static TSharedPtr<FJsonObject> SerializeParameterBindings(class FShaderParameterBindings* ParameterBindings);
@@ -30,6 +30,6 @@ public:
     static FString MaterialShaderMapUsageToString(uint8 MaterialShaderMapUsage);
     static FString ShaderPlatformToString(uint8 ShaderPlatform);
     static FString ShaderFrequencyToString(uint8 ShaderFrequency);*/
-    
+
     virtual FName GetAssetClass() const override;
 };

@@ -35,7 +35,7 @@ public:
      * It does not actually export any geometry or animations, just a bare skeleton
      */
     static bool ExportSkeletonIntoFbxFile(USkeleton* Skeleton, const FString& OutFileName, bool bExportAsText = false, FString* OutErrorMessage = NULL);
- 
+
     /**
      * Exports skeletal mesh into the FBX file
      * Overall behavior is similar to ExportStaticMeshIntoFbxFile, but
@@ -54,18 +54,18 @@ private:
     /** Exports animation sequence into the given fbx animation layer */
     static void ExportAnimSequence(const UAnimSequence* AnimSeq, TArray<FbxNode*>& BoneNodes, USkeletalMesh* SkeletalMesh, FbxAnimStack* AnimStack, FbxAnimLayer* InAnimLayer, float AnimStartOffset, float AnimEndOffset, float AnimPlayRate, float StartTime);
 
-	/** Setups animation stack for exporting unreal animations */
-	static bool SetupAnimStack(const UAnimSequence* AnimSequence, FbxAnimStack* AnimStack);
-	
-	/** Exports custom animation curves into fbx curves */
-	static void ExportCustomAnimCurvesToFbx(const TMap<FName, FbxAnimCurve*>& CustomCurves, const UAnimSequence* AnimSequence, float AnimStartOffset, float AnimEndOffset, float AnimPlayRate, float StartTime);
-	
-	/** Iterates lambda inside of the anim sequence context passing various time values to it */
+    /** Setups animation stack for exporting unreal animations */
+    static bool SetupAnimStack(const UAnimSequence* AnimSequence, FbxAnimStack* AnimStack);
+
+    /** Exports custom animation curves into fbx curves */
+    static void ExportCustomAnimCurvesToFbx(const TMap<FName, FbxAnimCurve*>& CustomCurves, const UAnimSequence* AnimSequence, float AnimStartOffset, float AnimEndOffset, float AnimPlayRate, float StartTime);
+
+    /** Iterates lambda inside of the anim sequence context passing various time values to it */
     static void IterateInsideAnimSequence(const UAnimSequence* AnimSeq, float AnimStartOffset, float AnimEndOffset, float AnimPlayRate, float StartTime, TFunctionRef<void(float, FbxTime, bool)> IterationLambda);
-	
+
     /** Corrects interpolation on angle curves so that -179 -> 179 degrees interpolation doesn't go the whole circle */
     static void CorrectAnimTrackInterpolation(TArray<FbxNode*>& BoneNodes, FbxAnimLayer* InAnimLayer);
-    
+
     /** Exports Static Mesh LOD into the target fbx mesh object */
     static void ExportStaticMesh(const FStaticMeshLODResources& StaticMeshLOD, const TArray<FStaticMaterial>& ReferencedMaterials, FbxMesh* FbxMesh);
 

@@ -5,8 +5,8 @@
 #include "Reflection/ReflectionHelper.h"
 #include "ConfigManager.generated.h"
 
-//Whenever to use FillConfigStruct optimization caching results in a single struct and then copying it
-//When disabled, each FillConfigStruct call will cause full population of passed struct through UConfigValue chain
+// Whenever to use FillConfigStruct optimization caching results in a single struct and then copying it
+// When disabled, each FillConfigStruct call will cause full population of passed struct through UConfigValue chain
 #define OPTIMIZE_FILL_CONFIGURATION_STRUCT 1
 
 class UUserWidget;
@@ -52,7 +52,7 @@ public:
     /** Marks configuration as dirty and pending save */
     UFUNCTION(BlueprintCallable)
     void MarkConfigurationDirty(const FConfigId& ConfigId);
-    
+
     /** Fills passed struct with a data obtained from active configuration identified by passed config id */
     UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "StructInfo"))
     void FillConfigurationStruct(const FConfigId& ConfigId, UPARAM(Ref) const FDynamicStructInfo& StructInfo);
@@ -74,17 +74,17 @@ public:
     UConfigPropertySection* GetConfigurationRootSection(const FConfigId& ConfigId) const;
 
     void Initialize(FSubsystemCollectionBase& Collection) override;
-    
+
     /** Returns configuration folder path used by config manager */
     static FString GetConfigurationFolderPath();
 private:
     friend class FSatisfactoryModLoader;
-	friend class URuntimeBlueprintFunctionLibrary;
+    friend class URuntimeBlueprintFunctionLibrary;
     /** Returns path to the provided configuration */
     static FString GetConfigurationFilePath(const FConfigId& ConfigId);
 
     void ReplaceConfigurationClass(FRegisteredConfigurationData* ExistingData, TSubclassOf<UModConfiguration> NewConfiguration);
-    
+
     void OnTimerManagerAvailable(class FTimerManager* TimerManager);
 
     /** Saves configuration with specified id into the file system */
@@ -98,7 +98,7 @@ private:
 
     /** Array of all configurations pending save */
     TArray<FConfigId> PendingSaveConfigurations;
-    
+
     /** Registered configurations */
     UPROPERTY()
     TMap<FConfigId, FRegisteredConfigurationData> Configurations;

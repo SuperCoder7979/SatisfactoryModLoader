@@ -28,19 +28,19 @@ private:
     bool bAllowExportObjectSerialization;
 public:
     UObjectHierarchySerializer();
-    
+
     TSharedRef<FJsonObject> SerializeObjectProperties(UObject* Object);
     void SerializeObjectPropertiesIntoObject(UObject* Object, TSharedPtr<FJsonObject> OutObject);
-    
+
     void DeserializeObjectProperties(const TSharedRef<FJsonObject>& Properties, UObject* Object);
 
-	void SetPropertySerializer(UPropertySerializer* NewPropertySerializer);
-	
+    void SetPropertySerializer(UPropertySerializer* NewPropertySerializer);
+
     void InitializeForSerialization(UPackage* NewSourcePackage);
 
     /** Allows serialization of class with native Serialize override */
     void AllowNativeClassSerialization(UClass* ClassToAllow);
-    
+
     /**
      * Sets object mark for provided object instance
      * Instances of this object will be serialized as a simple object mark string
@@ -54,20 +54,20 @@ public:
      * an object inside of the same package will trigger an exception
      */
     void SetAllowExportedObjectSerialization(bool bAllowExportedObjectSerialization);
-    
+
     void InitializeForDeserialization(const TArray<TSharedPtr<FJsonValue>>& ObjectsArray);
-	void SetPackageForDeserialization(UPackage* SelfPackage);
-	
+    void SetPackageForDeserialization(UPackage* SelfPackage);
+
     UObject* DeserializeObject(int32 Index);
-    
+
     int32 SerializeObject(UObject* Object);
-    
+
     TArray<TSharedPtr<FJsonValue>> FinalizeSerialization();
 
     FORCEINLINE static const TSet<FName>& GetUnhandledNativeClasses() { return UnhandledNativeClasses; }
 private:
     static TSet<FName> UnhandledNativeClasses;
-    
+
     void SerializeImportedObject(TSharedPtr<FJsonObject> ResultJson, UObject* Object);
     void SerializeExportedObject(TSharedPtr<FJsonObject> ResultJson, UObject* Object);
 

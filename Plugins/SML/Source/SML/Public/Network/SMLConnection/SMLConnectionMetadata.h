@@ -8,5 +8,5 @@ class SML_API USMLConnectionMetadata : public UObject {
     GENERATED_BODY()
 public:
     bool bIsInitialized;
-    TMap<FString, FVersion> InstalledClientMods;    
+    TMap<FString, FVersion> InstalledClientMods;
 };

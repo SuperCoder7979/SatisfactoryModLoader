@@ -7,7 +7,7 @@
 #include "ItemTooltipSubsystem.generated.h"
 
 UCLASS()
-class SML_API UItemTooltipSubsystem: public UGameInstanceSubsystem {
+class SML_API UItemTooltipSubsystem : public UGameInstanceSubsystem {
     GENERATED_BODY()
 public:
     /**
@@ -17,7 +17,7 @@ public:
      */
     UFUNCTION(BlueprintCallable)
     void RegisterGlobalTooltipProvider(const FString& ModReference, UObject* ItemTooltipProvider);
-    
+
     /**
      * Returns formatted item name obtained from InventoryStack
      * For normal items it just returns UFGItemDescriptor::GetItemDescription
@@ -40,7 +40,7 @@ private:
     void ApplyItemOverridesToTooltip(UWidget* TooltipWidget, APlayerController* OwningPlayer, const FInventoryStack& InventoryStack);
 
     static void InitializePatches();
-    
+
     /** Array of registered tooltip providers, UPROPERTY to avoid garbage collection */
     UPROPERTY()
     TArray<UObject*> GlobalTooltipProviders;

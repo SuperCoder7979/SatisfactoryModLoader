@@ -7,11 +7,11 @@
 
 void UAnimationMontageAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UAnimMontage)
-    
-    DISABLE_SERIALIZATION(UAnimSequenceBase, RawCurveData)
-    check(Asset->RawCurveData.FloatCurves.Num() == 0);
 
-    SERIALIZE_ASSET_OBJECT
+        DISABLE_SERIALIZATION(UAnimSequenceBase, RawCurveData)
+        check(Asset->RawCurveData.FloatCurves.Num() == 0);
+
+        SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION
 }
 

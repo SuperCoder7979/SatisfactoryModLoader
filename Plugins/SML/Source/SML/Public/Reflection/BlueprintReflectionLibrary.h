@@ -20,7 +20,7 @@ public:
      */
     UFUNCTION(BlueprintPure, Category = "Reflection", CustomThunk, meta = (DeterminesOutputType = "Class"))
     static UObject* GetClassDefaultObject(UClass* Class);
-    
+
     /** Allocates reflected object wrapper for given object */
     UFUNCTION(BlueprintPure, Category = "Reflection")
     static FReflectedObject ReflectObject(UObject* Object);
@@ -68,7 +68,7 @@ public:
     /** Updates a value of 64-bit signed integer variable */
     UFUNCTION(BlueprintCallable, Category = "Reflection")
     static void SetInt64Property(const FReflectedObject& ReflectedObject, FName PropertyName, int64 Value);
-    
+
     /** Retrieves a value of 32-bit signed integer */
     UFUNCTION(BlueprintPure, Category = "Reflection")
     static int32 GetInt32Property(const FReflectedObject& ReflectedObject, FName PropertyName);
@@ -138,19 +138,26 @@ public:
 
     DECLARE_FUNCTION(execGetClassDefaultObject) {
         P_GET_OBJECT(UClass, Class);
-    	P_FINISH;
+        P_FINISH;
         checkf(Class, TEXT("GetClassDefaultObject: received NULL class"));
 
-    	P_NATIVE_BEGIN;
-        UPackage* OutermostPackage = Stack.Node->GetOutermost();
-        const FString PackageOwner = UBlueprintAssetHelperLibrary::FindPluginNameByObjectPath(OutermostPackage->GetName());
-        const FString ClassOwner = UBlueprintAssetHelperLibrary::FindPluginNameByObjectPath(Class->GetOuterUPackage()->GetName());
-        if (PackageOwner != ClassOwner) {
-            UE_LOG(LogSatisfactoryModLoader, Warning, TEXT("Blueprint %s, owned by %s, is accessing CDO of class %s, owned by %s"),
-                *OutermostPackage->GetName(), *PackageOwner, *Class->GetPathName(), *ClassOwner);
-        }
-        *(UObject**)RESULT_PARAM = GetClassDefaultObject(Class);
-    	P_NATIVE_END;
+        P_NATIVE_BEGIN;
+            UPackage* OutermostPackage = Stack.Node->GetOutermost();
+            const FString PackageOwner = UBlueprintAssetHelperLibrary::FindPluginNameByObjectPath(OutermostPackage->GetName());
+            const FString ClassOwner = UBlueprintAssetHelperLibrary::FindPluginNameByObjectPath(Class->GetOuterUPackage()->GetName());
+            if (PackageOwner != ClassOwner) {
+                UE_LOG(
+                    LogSatisfactoryModLoader,
+                    Warning,
+                    TEXT("Blueprint %s, owned by %s, is accessing CDO of class %s, owned by %s"),
+                    *OutermostPackage->GetName(),
+                    *PackageOwner,
+                    *Class->GetPathName(),
+                    *ClassOwner
+                );
+            }
+            *(UObject**)RESULT_PARAM = GetClassDefaultObject(Class);
+        P_NATIVE_END;
     }
 
     DECLARE_FUNCTION(execDeflectStruct) {
@@ -158,30 +165,34 @@ public:
         const FDynamicStructInfo StructInfo = FReflectionHelper::CheckStructParameter(Context, Stack);
         P_FINISH;
 
-    	P_NATIVE_BEGIN;
-        if (StructInfo.Struct != NULL) {
-            const FBlueprintExceptionInfo ExceptionInfo(EBlueprintExceptionType::AccessViolation,
-              INVTEXT("Tried to pass NULL struct to DeflectStruct"));
-            FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
-            return;
-        }
-        DeflectStruct(ReflectedObject, StructInfo);
-    	P_NATIVE_END;
+        P_NATIVE_BEGIN;
+            if (StructInfo.Struct != NULL) {
+                const FBlueprintExceptionInfo ExceptionInfo(
+                    EBlueprintExceptionType::AccessViolation,
+                    INVTEXT("Tried to pass NULL struct to DeflectStruct")
+                );
+                FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
+                return;
+            }
+            DeflectStruct(ReflectedObject, StructInfo);
+        P_NATIVE_END;
     }
 
     DECLARE_FUNCTION(execReflectStruct) {
         const FDynamicStructInfo StructInfo = FReflectionHelper::CheckStructParameter(Context, Stack);
         P_FINISH;
 
-    	P_NATIVE_BEGIN;
-        if (StructInfo.Struct != NULL) {
-            const FBlueprintExceptionInfo ExceptionInfo(EBlueprintExceptionType::AccessViolation,
-              INVTEXT("Tried to pass NULL struct to ReflectStruct"));
-            FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
-            return;
-        }
-        FReflectedObject ReflectedObject = ReflectStruct(StructInfo);
-        *(FReflectedObject*)RESULT_PARAM = ReflectedObject;
-    	P_NATIVE_END;
+        P_NATIVE_BEGIN;
+            if (StructInfo.Struct != NULL) {
+                const FBlueprintExceptionInfo ExceptionInfo(
+                    EBlueprintExceptionType::AccessViolation,
+                    INVTEXT("Tried to pass NULL struct to ReflectStruct")
+                );
+                FBlueprintCoreDelegates::ThrowScriptException(Context, Stack, ExceptionInfo);
+                return;
+            }
+            FReflectedObject ReflectedObject = ReflectStruct(StructInfo);
+            *(FReflectedObject*)RESULT_PARAM = ReflectedObject;
+        P_NATIVE_END;
     }
 };

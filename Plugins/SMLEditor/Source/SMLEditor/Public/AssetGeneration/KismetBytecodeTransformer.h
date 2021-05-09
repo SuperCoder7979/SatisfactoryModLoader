@@ -22,7 +22,7 @@ public:
     TArray<TSharedPtr<FKismetCompiledStatement>> FinishGeneration();
 
     /** Returns true if we are currently processing ubergraph function */
-    FORCEINLINE bool IsUberGraphFunction() const { return CurrentFunctionName == ExecuteUbergraphFunctionName; } 
+    FORCEINLINE bool IsUberGraphFunction() const { return CurrentFunctionName == ExecuteUbergraphFunctionName; }
 private:
     /** Class path of the class this bytecode belongs to. Should exist and be populated with function stubs */
     UBlueprint* OwnerBlueprint;
@@ -36,7 +36,7 @@ private:
     static bool IsContextInstruction(const FString& InstructionName);
     static bool IsCallFunctionInstruction(const FString& InstructionName);
     static bool IsVariableInstruction(const FString& InstructionName);
-    
+
     TSharedPtr<FKismetCompiledStatement> ProcessStatement(TSharedPtr<FJsonObject> Statement);
     TSharedPtr<FKismetTerminal> ProcessExpression(TSharedPtr<FJsonObject> Expression);
     TSharedPtr<FKismetTerminal> ProcessLiteralExpression(TSharedPtr<FJsonObject> Expression, bool bIsDelimited);
@@ -46,10 +46,10 @@ private:
     TMap<int32, TSharedPtr<FKismetCompiledStatement>> StatementsByOffset;
     TArray<TSharedPtr<FKismetCompiledStatement>> ResultStatements;
 
-    //Map of patch-ups to apply to target labels after all expressions have been parsed
-    //It will convert int32 offsets in bytecode to absolute statement references
-    //It might also end up converting statement type if referenced statement is happens to be Return
-    //then jump is converted to KCST_GotoReturn
+    // Map of patch-ups to apply to target labels after all expressions have been parsed
+    // It will convert int32 offsets in bytecode to absolute statement references
+    // It might also end up converting statement type if referenced statement is happens to be Return
+    // then jump is converted to KCST_GotoReturn
     TMap<TSharedPtr<FKismetCompiledStatement>, int32> JumpPatchUpTable;
 
 };

@@ -24,36 +24,42 @@ void SAlpakitWidget::Construct(const FArguments& InArgs) {
     FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
     DetailsView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
     DetailsView->SetObject(UAlpakitSettings::Get());
-    DetailsView->OnFinishedChangingProperties().AddLambda([this](const FPropertyChangedEvent&) {
-        UAlpakitSettings::Get()->SaveSettings();
-    });
-    
+    DetailsView->OnFinishedChangingProperties().AddLambda(
+        [this](const FPropertyChangedEvent&) {
+            UAlpakitSettings::Get()->SaveSettings();
+        }
+    );
+
     ChildSlot[
         SNew(SVerticalBox)
-        +SVerticalBox::Slot().AutoHeight()[
+        + SVerticalBox::Slot().AutoHeight()[
             DetailsView.ToSharedRef()
         ]
-        +SVerticalBox::Slot().AutoHeight()[
+        + SVerticalBox::Slot().AutoHeight()[
             SNew(SHorizontalBox)
-            +SHorizontalBox::Slot().FillWidth(1)[
+            + SHorizontalBox::Slot().FillWidth(1)[
                 SNew(SEditableTextBox)
                 .HintText(LOCTEXT("SearchHint", "Search Plugin..."))
-                .OnTextChanged_Lambda([this](const FText& InText) {
-                    this->ModList->Filter(InText.ToString());
-                })
+                .OnTextChanged_Lambda(
+                                          [this](const FText& InText) {
+                                              this->ModList->Filter(InText.ToString());
+                                          }
+                                      )
             ]
-            +SHorizontalBox::Slot().AutoWidth()[
+            + SHorizontalBox::Slot().AutoWidth()[
                 SNew(SCheckBox)
                 .Content()[
                     SNew(STextBlock)
                     .Text(LOCTEXT("CheckAllPlugins", "All Content Plugins"))
                 ]
-                .OnCheckStateChanged_Lambda([this](ECheckBoxState InState) {
-                    this->ModList->SetShowEngine(InState == ECheckBoxState::Checked);
-                })
+                .OnCheckStateChanged_Lambda(
+                    [this](ECheckBoxState InState) {
+                        this->ModList->SetShowEngine(InState == ECheckBoxState::Checked);
+                    }
+                )
             ]
         ]
-        +SVerticalBox::Slot().FillHeight(1).Padding(3)[
+        + SVerticalBox::Slot().FillHeight(1).Padding(3)[
             SAssignNew(ModList, SAlpakitModEntryList)
         ]
     ];

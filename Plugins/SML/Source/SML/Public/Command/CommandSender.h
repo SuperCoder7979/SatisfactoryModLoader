@@ -14,7 +14,7 @@ public:
      */
     UFUNCTION(BlueprintPure)
     virtual FString GetSenderName() const;
-	
+
     /**
     * Returns true if this command sender represents player, false otherwise
     */

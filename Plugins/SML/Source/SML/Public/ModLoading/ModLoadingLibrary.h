@@ -26,11 +26,11 @@ struct SML_API FModInfo {
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString Name;
-    
+
     /** Display name of the mod */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString FriendlyName;
-    
+
     /**
      * Version of the as it is declared in it's manifest
      * If the mod does not declare SML metadata, it's
@@ -38,11 +38,11 @@ struct SML_API FModInfo {
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FVersion Version;
-    
+
     /** Description of the mod to be displayed in the plugin manager and mod list */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString Description;
-    
+
     /** Authors of the mod, displayed to the user in the mod list and plugin manager */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FString CreatedBy;
@@ -56,7 +56,6 @@ struct SML_API FModInfo {
     FVersionRange RemoteVersionRange;
 };
 
-
 /** Contains plugin descriptor metadata read and used by SML to provide extra functionality */
 struct SML_API FSMLPluginDescriptorMetadata {
 
@@ -65,7 +64,7 @@ struct SML_API FSMLPluginDescriptorMetadata {
 
     /** Whenever mod accepts any remote version */
     bool bAcceptsAnyRemoteVersion;
-    
+
     /** Range of the accepted remote versions, by default >=Version */
     FVersionRange RemoteVersionRange;
 
@@ -85,7 +84,7 @@ class SML_API UModLoadingLibrary : public UEngineSubsystem {
     GENERATED_BODY()
 public:
     UModLoadingLibrary();
-    
+
     /** Returns true when mod with the provided codename is loaded */
     UFUNCTION(BlueprintPure, Category = "SML|Mod Loading", meta = (BlueprintThreadSafe))
     bool IsModLoaded(const FString& Name);
@@ -120,8 +119,8 @@ public:
     /** Performs basic initialization of the mod loading library and basic metadata scan */
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	/** Determines whenever provided plugin should be treated as a mod. In editor, project plugins are treated as mods */
-	static bool IsPluginAMod(IPlugin& Plugin);
+    /** Determines whenever provided plugin should be treated as a mod. In editor, project plugins are treated as mods */
+    static bool IsPluginAMod(IPlugin& Plugin);
 private:
     /** Retrieves metadata for mod plugins, or creates a default metadata for engine or other plugins */
     FSMLPluginDescriptorMetadata FindMetadataOrFallback(IPlugin& Plugin);
@@ -134,22 +133,22 @@ private:
 
     /** Verifies dependencies of the single plugin */
     void VerifySinglePluginDependencies(IPlugin& Plugin);
-    
+
     /** Performs verification of the plugin dependencies versions, and crashes the game if they don't match */
     void VerifyPluginDependencies(IPlugin& Plugin, TArray<FString>& MismatchedDependencies);
 
     /** Populates mod information for the provided plugin instance */
     void PopulatePluginModInfo(IPlugin& Plugin, FModInfo& OutModInfo);
-    
+
     /** Called when new plugin is created, used to preload SML metadata for it */
     void OnNewPluginCreated(IPlugin& Plugin);
 
     /** Makes sure metadata is loaded for the provided plugin and attempts to load it if it's not */
     void LoadMetadataForPlugin(IPlugin& Plugin);
-    
+
     UPROPERTY()
     class UModIconStorage* ModIconStorage;
-    
+
     TMap<FString, FSMLPluginDescriptorMetadata> PluginMetadata;
 };
 
@@ -164,7 +163,7 @@ private:
 
     /** Blank image returned when icon cannot be loaded */
     UPROPERTY()
-    UTexture2D* BlankTexture; 
+    UTexture2D* BlankTexture;
 public:
     UModIconStorage();
 
@@ -174,4 +173,3 @@ private:
     /** Actually loads mod icon */
     static UTexture2D* LoadModIcon(const FString& PluginName);
 };
-

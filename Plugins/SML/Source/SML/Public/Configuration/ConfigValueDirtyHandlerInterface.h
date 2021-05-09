@@ -5,7 +5,7 @@
 /** Blueprint wrapper for the IUConfigValueDirtyHandler interface */
 UINTERFACE(Blueprintable)
 class SML_API UConfigValueDirtyHandlerInterface : public UInterface {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 /**
@@ -15,8 +15,8 @@ class SML_API UConfigValueDirtyHandlerInterface : public UInterface {
 * marking configuration dirty
 */
 class SML_API IConfigValueDirtyHandlerInterface {
-	GENERATED_BODY()
-	public:
-	UFUNCTION(BlueprintNativeEvent)
+    GENERATED_BODY()
+public:
+    UFUNCTION(BlueprintNativeEvent)
     void MarkDirty();
 };

@@ -6,6 +6,7 @@
 #include "NetworkHandler.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogModNetworkHandler, Log, All);
+
 DECLARE_DELEGATE_TwoParams(FMessageReceived, class UNetConnection* /*Connection*/, FString /*Data*/);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FWelcomePlayer, UWorld* /*ServerWorld*/, class UNetConnection* /*Connection*/);
 DECLARE_MULTICAST_DELEGATE_OneParam(FClientInitialJoin, class UNetConnection* /*Connection*/);
@@ -71,7 +72,7 @@ public:
     FMessageEntry& RegisterMessageType(const FMessageType& MessageType);
 
     static void CloseWithFailureMessage(class UNetConnection* Connection, const FString& Message);
-    
+
     /**
      * Send registered mod message to this connection to be processed on the remote side
      */

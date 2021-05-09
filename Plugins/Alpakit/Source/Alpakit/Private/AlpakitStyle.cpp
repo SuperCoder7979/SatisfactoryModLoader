@@ -3,7 +3,7 @@
 #include "Styling/SlateStyleRegistry.h"
 
 static FName StyleSetName(TEXT("AlpakitStyle"));
-TSharedPtr< FSlateStyleSet > FAlpakitStyle::StyleInstance = NULL;
+TSharedPtr<FSlateStyleSet> FAlpakitStyle::StyleInstance = NULL;
 
 void FAlpakitStyle::Initialize() {
     if (!StyleInstance.IsValid()) {

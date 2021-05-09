@@ -10,10 +10,10 @@ UENUM(BlueprintType)
 enum class ELifecyclePhase : uint8 {
     /** Dispatched right after module is loaded */
     CONSTRUCTION UMETA(DisplayName = "Construction"),
-    
+
     /** Dispatched when all mod modules were loaded and constructed */
     INITIALIZATION UMETA(DisplayName = "Initialization"),
-    
+
     /** Called after all mod modules have been initialized */
     POST_INITIALIZATION UMETA(DisplayName = "Post Initialization")
 };
@@ -25,11 +25,11 @@ class SML_API UModModule : public UObject {
 private:
     /** Private field holding owner mod reference, accessible directly only by mod loader */
     FName OwnerModReference;
-    
+
     /** Child modules of this module */
     UPROPERTY()
     TMap<FName, UModModule*> ChildModules;
-    
+
     /** Events that we already received. Will be dispatched immediately on child modules */
     TArray<ELifecyclePhase> EventsReceived;
 public:
@@ -41,11 +41,11 @@ public:
     */
     UPROPERTY(AssetRegistrySearchable, EditDefaultsOnly)
     bool bRootModule;
-    
+
     /** ModReference of the mod this module belongs to */
     UFUNCTION(BlueprintPure)
     FORCEINLINE FName GetOwnerModReference() const { return OwnerModReference; }
-    
+
     /** Spawns child module and dispatches lifecycle events on it */
     UFUNCTION(BlueprintCallable)
     UModModule* SpawnChildModule(FName ModuleName, TSoftClassPtr<UModModule> ModuleClass);

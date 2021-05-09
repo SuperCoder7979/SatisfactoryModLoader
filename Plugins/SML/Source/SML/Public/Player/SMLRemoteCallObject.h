@@ -10,7 +10,7 @@ class SML_API USMLRemoteCallObject : public UFGRemoteCallObject {
     GENERATED_BODY()
 public:
     USMLRemoteCallObject();
-    
+
     /** Command Sender associated with this player */
     UPROPERTY(BlueprintReadOnly)
     UPlayerCommandSender* CommandSender;
@@ -22,7 +22,7 @@ public:
     /** Returns version of the mod installed on client side. Returns 0.0.0 if mod is not installed */
     UFUNCTION(BlueprintPure)
     FVersion GetClientModVersion(const FString& ModId) const;
-	
+
     /** Sends system chat message to the player */
     UFUNCTION(BlueprintCallable, Reliable, Client)
     void SendChatMessage(const FString& Message, const FLinearColor& Color);
@@ -34,12 +34,12 @@ public:
     /** Validation function for HandleChatCommand */
     bool HandleChatCommand_Validate(const FString& CommandLine);
 
-    void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps ) const override;
+    void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 private:
-    //To be able to modify client installed mods list
+    // To be able to modify client installed mods list
     friend class FSMLNetworkManager;
     friend class FSatisfactoryModLoader;
-    
+
     /* List of mods installed on the client side */
     TMap<FString, FVersion> ClientInstalledMods;
 

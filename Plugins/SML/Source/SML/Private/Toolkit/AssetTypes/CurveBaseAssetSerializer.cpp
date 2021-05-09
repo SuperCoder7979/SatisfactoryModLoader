@@ -8,7 +8,7 @@
 
 void UCurveBaseAssetSerializer::SerializeAsset(TSharedRef<FSerializationContext> Context) const {
     BEGIN_ASSET_SERIALIZATION(UCurveBase)
-    SERIALIZE_ASSET_OBJECT
+        SERIALIZE_ASSET_OBJECT
     END_ASSET_SERIALIZATION
 }
 

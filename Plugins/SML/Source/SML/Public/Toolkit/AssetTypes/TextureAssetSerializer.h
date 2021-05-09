@@ -10,9 +10,9 @@ public:
 
     /** Serializes actual texture payload into provided serialization context. Set bResetAlpha to true to make entire image opaque and force alpha to 1.0f (used for cubemaps) */
     static void SerializeTextureData(const FString& ContextString, struct FTexturePlatformData* PlatformData, TSharedPtr<class FJsonObject> Data, TSharedRef<FSerializationContext> Context, bool bResetAlpha, const FString& FileNamePostfix);
-    
+
     /** Serializes Texture2D, including exporting it to image file saved alongside json */
     static void SerializeTexture2D(class UTexture2D* Asset, TSharedPtr<class FJsonObject> Data, TSharedRef<class FSerializationContext> Context, const FString& Postfix);
-    
-    virtual FName GetAssetClass() const override;    
+
+    virtual FName GetAssetClass() const override;
 };
