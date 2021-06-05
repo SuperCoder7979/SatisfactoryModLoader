@@ -1,0 +1,18 @@
+name: cpplint
+on: [push, pull_request]
+jobs:
+  cpplint:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup Python3
+      uses: actions/setup-python@v1
+
+    - name: Install cpplint
+      run: pip install cpplint
+
+    - name: Run cpplint
+      run: cpplint --recursive --exclude=Plugins/SML/ThirdParty --exclude=Plugins/SML/Source/SML/Private/Util/ThirdParty --exclude=Source --linelength=140 --counting=detailed --filter=-legal .
